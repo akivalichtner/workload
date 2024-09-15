@@ -38,3 +38,14 @@ For this project to move forward it needs to provide some value. There are alrea
 
 There should be a REST API that will provide access to all functions. There will also be a browser-based administration tool, and driver software for various languages, all of which will interact with the system through the API. The API will use HTTPS, and the API payload will be text-based. These choices are designed to make the software acceptable to modern firewalls (including web application firewalls), which inspect protocols. The format of the payload will be JSON because this is an accepted payload format today, and in the future additional formats could be supported.
 
+# Architecture
+
+The system will be implemented as a set of compute instances and network-attached storage.It will be the task of the software to deploy itself over the available instances.
+
+There will be a service to run the API on port 443. This will scale across availability zones and regions. The system will manage its own DNS hosted zone and keep it updated. When needed, the API service will direct the client to a specific address or set of addresses, and the client will be required to comply. This functionality will be built into the driver software. The API service will allocate a session and provide the client with a session key. This session key is not specific to an HTTPS connection, AZ, or region. The client will provide the session key when using the API service. The system will time out the session after a configurable amount of time. When the session is timed out any uncommitted transactions will be automatically rolled back.
+
+There will be a service to run the console on port 443. This will scale across availability zones and regions. The system will manage its own DNS hosted zone and keep it updated. If the console crashes the user will close the browser and log back in. The console service will allocate a session. If the console crashes this session will be lost. The console will be designed so as to keep any impact of a loss of session small.
+
+# TODO
+
+- Authentication
