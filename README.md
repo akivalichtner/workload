@@ -32,6 +32,8 @@ For this project to move forward it needs to provide some value. There are alrea
 
 - Applications re-use code heavily. The system is doing the same operations all the time with different parameters and against different data. It should use every running SQL statement to understand the data better. It should do so continuously because the data content changes all the time. The traditional statistics collection approach inevitably produces query plans whose performance is not predictable. Fancy algorithms do not help when the software does not know the data. Statistics should be collected on all relational expressions (including sub-expressions,) not just on tables. This should happen automatically, all the time.
 
+- The software will have built-in profiling which is always on. This is the only way for users to know where a query is truly spending its time. Application developers have a hard time keeping track of where transactions begin and end and even what they do, whereas the database knows all this information. For this reason the software will profile all SQL statements and all transactions.
+
 - At installation time the binary should be given access to one of the supported cloud vendors, and should provision servers and install the software on them. It should then provide the user (at the console) with URLs for the administration tool, and a connection string for use with the driver software.
 
 # User Interfaces
