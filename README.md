@@ -54,7 +54,7 @@ There will be a service to read and write data. The purpose of this service is t
 
 There will be a query planner service. The purpose of this service is to be given a SQL query and to return to the client a query plan.
 
-There will be a service to run query plans. The purpose of this service is to execute a query plan. This service is recursive in nature. Depending on the algorithms in the query plan and the constraints of CPU and memory available across the system, it will invoke other instances of itself. This service will be invoked by the API service.
+There will be a service to run query plans. The purpose of this service is to execute a query plan. This service is recursive in nature. Depending on the algorithms in the query plan and the constraints of CPU and memory available across the system, it will invoke other instances of itself. The instructions for these invocations will be included in the query plan itself. This service will be invoked by the API service.
 
 # TODO
 
