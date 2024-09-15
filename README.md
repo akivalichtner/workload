@@ -58,6 +58,20 @@ There will be a service to run query plans. The purpose of this service is to ex
 
 There will be a virtual synchrony service. The virtual synchrony service is highly available and fault tolerant. If a node fails in the virtual synchrony service no data is lost. The purpose of the virtual synchrony service is to maintain a consistent view of progress throughout the system so that when a node fails any transactions that ought to be rolled back are rolled back. Every process in the system connects to the virtual synchrony service and acquires a node id. Each node sends heartbeats to the virtual synchrony service, so that if the node fails the virtual synchrony service can take action to recover. Nodes communicate with each other directly, point to point. The virtual synchrony service provides the way for nodes interested in the same topic to find each other. Messages are spread over several topics. Progress is tracked using sequential ids and high water marks. When a node sends a heartbeat to the virtual synchrony service it sends the high water marks for the topics to which it is subscribed. The existence of the virtual synchrony service does not imply implementation details for how nodes communicate. The details can change depending on the purpose of a topic. Some replication protocols are designed for small groups, whereas others are appropriate for large groups.
 
+# How Services Work Together
+
+In this section I will discuss how the aforementioned architecture enables users to get work done in the database.
+
+An application loads the driver software with the connection string. The connection string contains a DNS record that returns one of a list of IP address, corresponding to the API service.
+
+The driver calls API service and requests a session ID. The API service has previously registered with the virtual synchrony service and been assigned a node id. It creates a session ID consisting of its node id and a session sequence number which reset to zero when the last view was installed (in the sense of virtual synchrony). It returns the session ID to the client.
+
+The driver calls the API service and requests a transaction id. The API service generates a transaction id consisting of its (aforementioned) node id and a sequence number. It sends this transaction ID to the transaction lifecycle topic, informing members that the transaction has started. It then returns the transaction ID to the client.
+
+The driver calls the API service and sends it its session id and transaction id, and a SQL statement. The API service calls the query planner and receives a plan for the query. It then calls the query runner service.
+
+The query runner service processes the next step in the query plan. The processing of query steps will be described elsewhere. When the query runner needs to read or write data, it sends a mesaage to a data store. For read messages the data store must return the most recent committed version of the data. Henceforth, if the query reads the same data again, it needs to read the same version of the data. This is accomplished by looking for the version with the correct system change number. Since the version can be so determined, if the data is replicated across data store types, all the data store types do not need to see the read message. Howewer, for write operations all the data store types do need to see the message.
+
 # TODO
 
 - Authentication
