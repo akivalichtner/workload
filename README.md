@@ -34,3 +34,7 @@ For this project to move forward it needs to provide some value. There are alrea
 
 - At installation time the binary should be given access to one of the supported cloud vendors, and should provision servers and install the software on them. It should then provide the user (at the console) with URLs for the administration tool, and a connection string for use with the driver software.
 
+# User Interfaces
+
+There should be a REST API that will provide access to all functions. There will also be a browser-based administration tool, and driver software for various languages, all of which will interact with the system through the API. The API will use HTTPS, and the API payload will be text-based. These choices are designed to make the software acceptable to modern firewalls (including web application firewalls), which inspect protocols. The format of the payload will be JSON because this is an accepted payload format today, and in the future additional formats could be supported.
+
