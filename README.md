@@ -52,7 +52,7 @@ There will be a system data service. The purpose of this service is to manage me
 
 There will be a service to read and write data. The purpose of this service is to provide an interface to access rows and columns. There will be several implementations of this service. There will be a uniform API for this service, but the internals will vary because of the conflicting requirements of performance, scalability and availability. The choice of implementation used will depend on the table, rows and columns to be accessed. One incarnation will consist of a process maniputlating data stored on a disk volume, another will be a replicated in-memory store. What is common to all the incarnations is ACID transactions with multi-version 2-phase locking. Since transactions will typically span more than one of these resources, this service type will support distributed transactions.
 
-There will be a query planner service. The purpose of this is to be given a SQL query and to return to the client a query plan.
+There will be a query planner service. The purpose of this service is to be given a SQL query and to return to the client a query plan.
 
 There will be a service to run query plans. The purpose of this service is to execute a query plan. This service is recursive in nature. Depending on the algorithms in the query plan and the constraints of CPU and memory available across the system, it will invoke other instances of itself. This service will be invoked by the API service.
 
