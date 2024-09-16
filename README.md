@@ -74,6 +74,8 @@ The query runner service processes the next step in the query plan. The processi
 
 When the transaction commits, the API service sends a commit message to the transaction lifecycle topic. All data service instances subscribe to this topic. When a data service instance receives the message it prunes the row history for its rows and releases the transaction's locks. A two-phase commit is not necessary because the locks on the rows in each data service instance were totally ordered (on the table topic) and they were all previously granted.
 
+When a node fails the virtual synchrony service detects this and notifies all nodes. The nodes pause further actions and run recovery. All missed messages that can be retransmitted are retransmitted. Where necessary, transactions are rolled back. After all nodes have run their recovery the virtual synchrony service installs a new view of the cluster and processing continues.
+
 # TODO
 
 - Authentication
