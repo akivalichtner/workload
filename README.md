@@ -64,9 +64,7 @@ In this section I will discuss how the aforementioned architecture enables users
 
 An application loads the driver software with the connection string. The connection string contains a DNS record that returns one of a list of IP address, corresponding to the API service.
 
-The driver calls the API service and requests a session ID. The API service has previously registered with the virtual synchrony service and been assigned a node id. It creates a session ID consisting of its node id and a session sequence number which reset to zero when the last view was installed (in the sense of virtual synchrony). It returns the session ID to the client.
-
-The driver calls the API service and requests a transaction id. The API service generates a transaction id consisting of its (aforementioned) node id and a sequence number. It sends this transaction ID to the transaction lifecycle topic, informing members that the transaction has started. It then returns the transaction ID to the client.
+The driver calls the API service and requests a session ID and a transaction ID. The API service delegates this to the system data service. The system data service sends out a totally ordered message and waits to receive it. The timestamp assigned to the message is used as the required ID. These messages (one for the session and one for the transaction) need to be sent in safe order (see above where the term was defined) but the destination of the messages does not have to go beyond the system data service, even though the IDs will be referenced elsewhere in the system later.
 
 The driver calls the API service and sends it its session id and transaction id, and a SQL statement. The API service calls the query planner and receives a plan for the query. It then calls the query runner service.
 
