@@ -1,6 +1,8 @@
 
 use DatabaseError::NotImplemented;
 
+// FIXME switch to traits, separate api from implementation
+
 pub fn connect(_connect_str: &str) -> Result<Connection, DatabaseError> {
     Err(NotImplemented)
 }
