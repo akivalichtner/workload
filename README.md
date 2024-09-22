@@ -74,4 +74,25 @@ When the transaction commits, the API service sends out a totally ordered commit
 
 # TODO
 
-- Authentication
+- Write requirements for authentication
+- Write requirements for backup
+
+# Modules
+
+In this section I describe some code modules or crates that we have identified so far.
+
+- Totem single-ring protocol library
+- Totem multiple-ring protocol library
+- Rust driver
+- Java driver
+- Typescript driver
+- C driver
+- API service
+- SQL parser
+- Query optimizer
+- Query runner service
+- Statistics collection library
+- System data service
+- Row-oriented, in-memory, replicated data service
+- Column-oriented, in-memory, replicated data service
+- B-tree index
