@@ -88,7 +88,7 @@ In this section I describe some code modules or crates that we have identified s
 - Typescript driver
 - C driver
 - API service
-- SQL parser
+- SQL compiler
 - Query optimizer
 - Query runner service
 - Statistics collection library
