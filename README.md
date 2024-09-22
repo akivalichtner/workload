@@ -76,6 +76,8 @@ When the transaction commits, the API service sends out a totally ordered commit
 
 - Write requirements for authentication
 - Write requirements for backup
+- Write requirements for metrics collection
+- Write requirements for statistics collection
 
 # Modules
 
