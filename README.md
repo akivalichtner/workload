@@ -74,6 +74,7 @@ When the transaction commits, the API service sends out a totally ordered commit
 
 # TODO
 
+- Write some good "user data" to provision an ec2 instance for. It needs rust, vscode, and https access.
 - Write requirements for authentication
 - Write requirements for backup
 - Write requirements for metrics collection
