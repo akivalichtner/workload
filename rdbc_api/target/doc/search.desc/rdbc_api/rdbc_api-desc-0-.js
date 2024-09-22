@@ -1,1 +1,0 @@
-searchState.loadedDescShard("rdbc_api", 0, "Workload Database Server API")

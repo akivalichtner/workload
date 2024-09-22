@@ -1,12 +1,5 @@
 
 //! Workload Database Server API
 
-mod workload {
+pub mod workload;
 
-    mod api {
-
-        mod rdbc {
-
-        }
-    }
-}

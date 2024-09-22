@@ -75,6 +75,7 @@ When the transaction commits, the API service sends out a totally ordered commit
 # TODO
 
 - Write some good "user data" to provision an ec2 instance for. It needs rust, vscode, and https access.
+- Figure out how to publish API documentation on github
 - Write requirements for authentication
 - Write requirements for backup
 - Write requirements for metrics collection
@@ -99,3 +100,7 @@ In this section I describe some code modules or crates that we have identified s
 - Row-oriented, in-memory, replicated data service
 - Column-oriented, in-memory, replicated data service
 - B-tree index
+
+# Miscellaneous notes
+
+- When you set your EC2 instance to develop you need to install rust, git and the rust-analyzer vscode extension.
