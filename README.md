@@ -103,4 +103,10 @@ In this section I describe some code modules or crates that we have identified s
 
 # Miscellaneous notes
 
-- When you set your EC2 instance to develop you need to install rust, git and the rust-analyzer vscode extension.
+- How to set up EC2 development instance:
+    - Use m4 class
+    - Install rust as ec2-user
+    - Install gcc as root (for the linker)
+    - Scp ssh keys (they are used for github communication)
+    - Install rust-analyzer vscode extension (you have to do re-do this each time)
+    - When rust-analyzer breaks click on the icon at the bottom, stop and start the rust-analyzer server
