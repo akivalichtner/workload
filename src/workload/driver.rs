@@ -41,6 +41,27 @@ impl Connection {
             None => false
         }
     }
+
+    fn create_statement(&mut self) -> Result<Statement, DatabaseError> {
+        Ok(Statement { connection: self })
+    }
+
+    fn close(&mut self) -> Result<(), DatabaseError> {
+        todo!();
+    }
+
+}
+
+pub struct Statement<'a> {
+    connection: &'a Connection
+}
+
+impl Statement<'_> {
+
+    fn close(&mut self) -> Result<(), DatabaseError> {
+        todo!();
+    }
+
 }
 
 pub enum DatabaseError {
