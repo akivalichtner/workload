@@ -36,7 +36,10 @@ impl Connection {
     }
 
     fn connected(&self) -> bool {
-        todo!()
+        match self.tcp_stream {
+            Some(_) => true,
+            None => false
+        }
     }
 }
 
