@@ -4,17 +4,24 @@ pub fn new_data_source() -> Box<dyn DataSource> {
 }
 
 pub trait DataSource {
-    
+
+    fn get_connection(&mut self) -> Box<dyn Connection>;
+}
+
+pub trait Connection {
 }
 
 struct DataSourceImpl {
 }
 
 impl DataSource for DataSourceImpl {
-
+    fn get_connection(&mut self) -> Box<dyn Connection> {
+        todo!()
+    }
 }
 
 fn _test() {
-    let _data_source_factory = new_data_source();
+    let mut data_source = new_data_source();
+    let _connection = data_source.get_connection();
 
 }
