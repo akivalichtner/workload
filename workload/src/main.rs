@@ -5,14 +5,14 @@ pub fn new_data_source() -> Box<dyn DataSource> {
 
 pub trait DataSource {
 
-    fn get_connection<'a, 'b>(&'a mut self) -> Box<dyn Connection<'b>> where 'b: 'a;
+    fn get_connection<'a, 'b>(&'a mut self) -> Box<dyn Connection<'b>>;
 }
 
 struct DataSourceImpl {
 }
 
 impl DataSource for DataSourceImpl {
-    fn get_connection<'a, 'b>(&'a mut self) -> Box<dyn Connection<'b>> where 'b: 'a {
+    fn get_connection<'a, 'b>(&'a mut self) -> Box<dyn Connection<'b>> {
         Box::new(ConnectionImpl{})
     }
 }
