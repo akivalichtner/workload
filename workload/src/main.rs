@@ -18,6 +18,8 @@ impl DataSource for DataSourceImpl {
 }
 
 pub trait Connection<'a> {
+
+    fn create_statement(&mut self) -> Box<dyn Statement>;
 }
 
 struct ConnectionImpl {
@@ -25,13 +27,27 @@ struct ConnectionImpl {
 }
 
 impl<'a> Connection<'a> for ConnectionImpl {
-
+    fn create_statement(&mut self) -> Box<dyn Statement> {
+        Box::new(StatementImpl{})
+    }
 }
 
 impl Drop for ConnectionImpl {
     fn drop(&mut self) {
         println!("drop");
     }
+}
+
+pub trait Statement {
+
+}
+
+struct StatementImpl {
+
+}
+
+impl Statement for StatementImpl {
+
 }
 
 fn main() {
