@@ -54,7 +54,8 @@ fn main() {
     let mut data_source = new_data_source();
     { 
         println!("allocating connection 1");
-        let _connection = data_source.get_connection();
+        let mut connection = data_source.get_connection();
+        let _statement = connection.create_statement();
     }
     { 
         println!("allocating connection 2");
