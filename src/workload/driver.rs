@@ -8,18 +8,25 @@ pub trait DataSource {
     fn get_connection(&mut self) -> Box<dyn Connection>;
 }
 
-pub trait Connection {
-}
-
 struct DataSourceImpl {
 }
 
 impl DataSource for DataSourceImpl {
     fn get_connection(&mut self) -> Box<dyn Connection> {
-        todo!()
+        Box::new(ConnectionImpl {})
     }
 }
 
+pub trait Connection {
+}
+
+struct ConnectionImpl {
+
+}
+
+impl Connection for ConnectionImpl {
+
+}
 
 fn _test() {
     let mut data_source = new_data_source();
