@@ -20,6 +20,7 @@ impl DataSource for DataSourceImpl {
     }
 }
 
+
 fn _test() {
     let mut data_source = new_data_source();
     let _connection = data_source.get_connection();
