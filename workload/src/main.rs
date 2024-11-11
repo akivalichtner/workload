@@ -34,7 +34,7 @@ impl Drop for ConnectionImpl {
     }
 }
 
-pub fn _test() {
+fn main() {
     let mut data_source = new_data_source();
     { 
         println!("allocating connection 1");
