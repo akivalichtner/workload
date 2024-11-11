@@ -5,31 +5,43 @@ pub fn new_data_source() -> Box<dyn DataSource> {
 
 pub trait DataSource {
 
-    fn get_connection(&mut self) -> Box<dyn Connection>;
+    fn get_connection<'a, 'b>(&'a mut self) -> Box<dyn Connection<'b>> where 'b: 'a;
 }
 
 struct DataSourceImpl {
 }
 
 impl DataSource for DataSourceImpl {
-    fn get_connection(&mut self) -> Box<dyn Connection> {
-        Box::new(ConnectionImpl {})
+    fn get_connection<'a, 'b>(&'a mut self) -> Box<dyn Connection<'b>> where 'b: 'a {
+        Box::new(ConnectionImpl{})
     }
 }
 
-pub trait Connection {
+pub trait Connection<'a> {
 }
 
 struct ConnectionImpl {
 
 }
 
-impl Connection for ConnectionImpl {
+impl<'a> Connection<'a> for ConnectionImpl {
 
 }
 
-fn _test() {
-    let mut data_source = new_data_source();
-    let _connection = data_source.get_connection();
+impl Drop for ConnectionImpl {
+    fn drop(&mut self) {
+        println!("drop");
+    }
+}
 
+pub fn _test() {
+    let mut data_source = new_data_source();
+    { 
+        println!("allocating connection 1");
+        let _connection = data_source.get_connection();
+    }
+    { 
+        println!("allocating connection 2");
+        let _connection = data_source.get_connection();
+    }
 }
