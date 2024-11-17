@@ -68,11 +68,11 @@ struct Statement {
 }
 
 impl Statement {
-    fn execute_query(&self, sql: &str) -> ResultSet {
-        ResultSet{}
+    fn execute_query(&self, sql: &str) -> Result<ResultSet, DatabaseError> {
+        Ok(ResultSet{})
     }
 
-    fn execute_update(&self, sql: &str) -> u64 {
+    fn execute_update(&self, sql: &str) -> Result<u64, DatabaseError> {
         todo!()
     }
 }
@@ -100,13 +100,26 @@ fn main() {
     match data_source.get_connection() {
         Ok(connection) => {
             let statement = connection.create_statement();
-            let _rows = statement.execute_update("INSERT INTO t (c) VALUES (1)");
-            let result_set = statement.execute_query("SELECT c FROM t");
-            while result_set.has_next() {
-                result_set.next();
-                result_set.get_string("c");
+            match statement.execute_update("INSERT INTO t (c) VALUES (1)") {
+                Ok(row_count) => {
+                    println!("Updated {} rows", row_count);
+                }
+                Err(database_error) => {
+                    println!("Update failed: {}", database_error);
+                }
             }
-            connection.commit();        
+            match statement.execute_query("SELECT c FROM t") {
+                Ok(result_set) => {
+                    while result_set.has_next() {
+                        result_set.next();
+                        result_set.get_string("c");
+                    }
+                    connection.commit();        
+                }
+                Err(database_error) => {
+                    println!("Query failed: {}", database_error);
+                }
+            }
         },
         Err(error) => {
             println!("Error connection to database: {}", error);
