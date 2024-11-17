@@ -1,64 +1,22 @@
 
-pub fn new_data_source() -> Box<dyn DataSource> {
-    Box::new(DataSourceImpl{})
+struct DataSource {
+    url: String,
+    port: u16,
+    user: String,
+    password: String
 }
 
-pub trait DataSource {
-
-    fn get_connection<'a, 'b>(&'a mut self) -> Box<dyn Connection<'b>>;
-}
-
-struct DataSourceImpl {
-}
-
-impl DataSource for DataSourceImpl {
-    fn get_connection<'a, 'b>(&'a mut self) -> Box<dyn Connection<'b>> {
-        Box::new(ConnectionImpl{})
+impl DataSource {
+    fn new(url: &str, port: u16, user: &str, password: &str) -> DataSource {
+        DataSource {
+            url: String::from(url),
+            port: port,
+            user: String::from(user),
+            password: String::from(password)
+        }
     }
-}
-
-pub trait Connection<'a> {
-
-    fn create_statement<'b>(&'a mut self) -> Box<dyn Statement<'b>>;
-}
-
-struct ConnectionImpl {
-
-}
-
-impl<'a> Connection<'a> for ConnectionImpl {
-    fn create_statement<'b>(&'a mut self) -> Box<dyn Statement<'b>> {
-        Box::new(StatementImpl{})
-    }
-}
-
-impl Drop for ConnectionImpl {
-    fn drop(&mut self) {
-        println!("drop");
-    }
-}
-
-pub trait Statement<'a> {
-
-}
-
-struct StatementImpl {
-
-}
-
-impl<'a> Statement<'a> for StatementImpl {
-
 }
 
 fn main() {
-    let mut data_source = new_data_source();
-    { 
-        println!("allocating connection 1");
-        let mut connection = data_source.get_connection();
-        let _statement = connection.create_statement();
-    }
-    { 
-        println!("allocating connection 2");
-        let _connection = data_source.get_connection();
-    }
+    let _data_source = DataSource::new("myname", 8080, "myuser", "mypassword");
 }
