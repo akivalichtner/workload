@@ -56,6 +56,7 @@ enum DriverProtocolCommand<'a> {
     Authenticate { user: &'a str, password: &'a str },
     Fail,
     Pass,
+    Commit,
 }
 pub struct Connection {
     driver_protocol_stream: Option<DriverProtocolStream>,
@@ -74,7 +75,7 @@ impl Connection {
                 self.driver_protocol_stream = Some(DriverProtocolStream::new(tcp_stream));
                 self.authenticate(user, password)
             }
-            Err(error) => Err(DatabaseError::ConnectToListenerFailed),
+            Err(_) => Err(DatabaseError::ConnectToListenerFailed),
         }
     }
 
@@ -82,8 +83,21 @@ impl Connection {
         Statement {}
     }
 
-    pub fn commit(&self) {
-        todo!()
+    pub fn commit(&self) -> Result<(), DatabaseError> {
+        if let Some(stream) = &self.driver_protocol_stream {
+            match stream.write(DriverProtocolCommand::Commit) {
+                Ok(()) => {
+                    match stream.read() {
+                        Ok(DriverProtocolCommand::Pass) => Ok(()),
+                        Ok(_) => Err(DatabaseError::ProtocolViolation),
+                        Err(database_error) => Err(database_error)
+                    }        
+                },
+                Err(database_error) => Err(database_error)
+            }
+        } else {
+            Err(DatabaseError::IllegalState)
+        }
     }
 
     fn authenticate(&self, user: &str, password: &str) -> Result<(), DatabaseError> {
