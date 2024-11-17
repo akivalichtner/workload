@@ -36,6 +36,10 @@ impl Connection {
         Statement{
         }
     }
+    
+    fn commit(&self) {
+        todo!()
+    }
 }
 
 struct Statement {
@@ -45,15 +49,39 @@ impl Statement {
     fn execute_query(&self, sql: &str) -> ResultSet {
         ResultSet{}
     }
+
+    fn execute_update(&self, sql: &str) -> u64 {
+        todo!()
+    }
 }
 
 struct ResultSet {
-    
+
+}
+
+impl ResultSet {
+    fn has_next(&self) -> bool {
+        todo!()
+    }
+
+    fn next(&self) {
+        todo!()
+    }
+
+    fn get_string(&self, column: &str) {
+        todo!()
+    }
 }
 
 fn main() {
     let data_source = DataSource::new("myname", 8080, "myuser", "mypassword");
-    let mut connection = data_source.get_connection();
+    let connection = data_source.get_connection();
     let statement = connection.create_statement();
-    let _result_set = statement.execute_query("INSERT INTO t (c) VALUES (1)");
+    let _rows = statement.execute_update("INSERT INTO t (c) VALUES (1)");
+    let result_set = statement.execute_query("SELECT c FROM t");
+    while result_set.has_next() {
+        result_set.next();
+        result_set.get_string("c");
+    }
+    connection.commit();
 }
