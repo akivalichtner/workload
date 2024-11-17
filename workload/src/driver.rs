@@ -139,7 +139,6 @@ impl<'a> Statement<'a> {
                 Ok(()) => {
                     match stream.read() {
                         Ok(DriverProtocolCommand::Executed{ rows }) => Ok(rows),
-                        Ok(DriverProtocolCommand::Fail) => Err(DatabaseError::AuthenticationFailed),
                         Ok(_) => Err(DatabaseError::ProtocolViolation),
                         Err(database_error) => Err(database_error)
                     }        
