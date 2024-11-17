@@ -47,9 +47,15 @@ impl DriverProtocolStream {
     fn write(&self, command: DriverProtocolCommand) -> Result<(), DatabaseError> {
         todo!()
     }
+
+    fn read(&self) -> Result<DriverProtocolCommand, DatabaseError> {
+        todo!()
+    }
 }
 enum DriverProtocolCommand<'a> {
     Authenticate { user: &'a str, password: &'a str },
+    Fail,
+    Pass,
 }
 pub struct Connection {
     driver_protocol_stream: Option<DriverProtocolStream>,
@@ -66,9 +72,9 @@ impl Connection {
         match net::TcpStream::connect(format!("{}:{}", url, port)) {
             Ok(tcp_stream) => {
                 self.driver_protocol_stream = Some(DriverProtocolStream::new(tcp_stream));
-                self.authenticate(user, password)?
+                self.authenticate(user, password)
             }
-            Err(error) => return Err(DatabaseError::ConnectToListenerFailed),
+            Err(error) => Err(DatabaseError::ConnectToListenerFailed),
         }
     }
 
@@ -81,9 +87,21 @@ impl Connection {
     }
 
     fn authenticate(&self, user: &str, password: &str) -> Result<(), DatabaseError> {
-        self.driver_protocol_stream
-            .write(DriverProtocolCommand::Authenticate { user, password });
-        
+        if let Some(stream) = &self.driver_protocol_stream {
+            match stream.write(DriverProtocolCommand::Authenticate { user, password }) {
+                Ok(()) => {
+                    match stream.read() {
+                        Ok(DriverProtocolCommand::Pass) => Ok(()),
+                        Ok(DriverProtocolCommand::Fail) => Err(DatabaseError::AuthenticationFailed),
+                        Ok(_) => Err(DatabaseError::ProtocolViolation),
+                        Err(database_error) => Err(database_error)
+                    }        
+                },
+                Err(database_error) => Err(database_error)
+            }
+        } else {
+            Err(DatabaseError::IllegalState)
+        }
     }
 }
 
@@ -117,4 +135,7 @@ impl ResultSet {
 
 pub enum DatabaseError {
     ConnectToListenerFailed,
+    AuthenticationFailed,
+    ProtocolViolation,
+    IllegalState,
 }
