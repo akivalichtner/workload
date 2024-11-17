@@ -124,7 +124,7 @@ Statement SELECT mycolumn FROM mytable can use the same statistics. Statement SE
 mycolumn = 1 will have its own statistics. So will SELECT * FROM mytable WHERE mycolumn = 2. None of this
 information can be thrown away a priori. However, storing this information costs money, so the database
 needs to maintain metrics on its statistics database and manage it. It needs to keep track of which statistics
-are proving useful. And it has to present this information to the administrator and suggest changes (such as deleting certain data, or stopping collection of certain statistics), leaving the choice to the administrator. And it needs to keep track of which statements use which directives.
+are proving useful. And it has to present this information to the administrator and suggest changes (such as deleting certain data, or stopping collection of certain statistics), leaving the choice to the administrator. And it needs to keep track of which statements use which directives, so the administrator understands cause and effect in query performance. The statistics will benefit from a good compression algorithm because they will consume a lot of space.
 
 # Backlog
 
