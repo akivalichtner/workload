@@ -1,0 +1,38 @@
+#!/usr/bin/bash
+
+# you need this here for rust to work with rustup
+yum install -y gcc
+yum install -y git
+
+file=/tmp/id_ed25519
+cat > $file <<EOF
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACAVHBgGfEx9SMU110M/pwy2WNouPMhw+vX3CO1YJmTn9QAAAKDeOuD/3jrg
+/wAAAAtzc2gtZWQyNTUxOQAAACAVHBgGfEx9SMU110M/pwy2WNouPMhw+vX3CO1YJmTn9Q
+AAAEBvhDL9ysCxgciBnt8oRUk/UwPNrxE8/wxmgwHbB2WUMhUcGAZ8TH1IxTXXQz+nDLZY
+2i48yHD69fcI7VgmZOf1AAAAGGFraXZhLmxpY2h0bmVyQGdtYWlsLmNvbQECAwQF
+-----END OPENSSH PRIVATE KEY-----
+EOF
+chmod 600 $file
+chown ec2-user $file
+cat $file
+mv $file ~ec2-user/.ssh
+
+file=/tmp/config
+cat > $file <<EOF
+Host *
+  StrictHostKeyChecking no
+  UserKnownHostsFile=/dev/null
+EOF
+chmod 600 $file
+chown ec2-user $file
+mv $file ~ec2-user/.ssh
+
+su - ec2-user -c "git clone git@github.com:akivalichtner/workload.git"
+ls -al ~ec2-user
+
+su - ec2-user -c "curl --proto =https --tlsv1.2 -sSf https://sh.rustup.rs > rustup; chmod u+x rustup; ./rustup -y"
+
+su - ec2-user -c "git config --global user.name \"Akiva Lichtner\""
+su - ec2-user -c "git config --global user.email akiva.lichtner@gmail.com"
