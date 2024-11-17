@@ -1,3 +1,4 @@
+use std::{fmt::{self}, net::TcpStream};
 
 struct DataSource {
     url: String,
@@ -16,19 +17,40 @@ impl DataSource {
         }
     }
 
-    fn get_connection(&self) -> Connection {
-        let connection = Connection{};
-        connection.connect(&self.url, self.port, &self.user, &self.password);
-        connection
+    fn get_connection(&self) -> Result<Connection, DatabaseError> {
+        let mut connection = Connection{ tcp_stream: None};
+        match connection.connect(&self.url, self.port, &self.user, &self.password) {
+            Ok(_) => Ok(connection),
+            Err(error) => Err(error)
+        }
+    }
+}
+
+enum DatabaseError {
+    ConnectToListenerFailed
+}
+
+impl fmt::Display for DatabaseError {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        write!(formatter, "{}", self)
     }
 }
 
 struct Connection {
-
+    tcp_stream: Option<TcpStream>
 }
 
 impl Connection {
-    fn connect(&self, url: &str, port: u16, user: &str, password: &str) -> () {
+    fn connect(&mut self, url: &str, port: u16, user: &str, password: &str) -> Result<(), DatabaseError> {
+        match TcpStream::connect(format!("{}:{}", url, port)) {
+            Ok(tcp_stream) => {
+                self.tcp_stream = Some(tcp_stream);
+                return Ok(())
+            },
+            Err(error) => {
+                return Err(DatabaseError::ConnectToListenerFailed)
+            }
+        }
         todo!()
     }
 
@@ -75,13 +97,19 @@ impl ResultSet {
 
 fn main() {
     let data_source = DataSource::new("myname", 8080, "myuser", "mypassword");
-    let connection = data_source.get_connection();
-    let statement = connection.create_statement();
-    let _rows = statement.execute_update("INSERT INTO t (c) VALUES (1)");
-    let result_set = statement.execute_query("SELECT c FROM t");
-    while result_set.has_next() {
-        result_set.next();
-        result_set.get_string("c");
+    match data_source.get_connection() {
+        Ok(connection) => {
+            let statement = connection.create_statement();
+            let _rows = statement.execute_update("INSERT INTO t (c) VALUES (1)");
+            let result_set = statement.execute_query("SELECT c FROM t");
+            while result_set.has_next() {
+                result_set.next();
+                result_set.get_string("c");
+            }
+            connection.commit();        
+        },
+        Err(error) => {
+            println!("Error connection to database: {}", error);
+        }
     }
-    connection.commit();
 }
