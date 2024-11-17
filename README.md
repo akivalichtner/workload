@@ -72,9 +72,13 @@ The query runner service processes the next step in the query plan. The processi
 
 When the transaction commits, the API service sends out a totally ordered commit message to all data services (this can be delegated to the data service, which is on the interconnect). When a data service instance receives the message it prunes the row history for its rows and releases the transaction's locks. A two-phase commit is not necessary because the locks on the rows in each data service instance were totally ordered and they were all previously granted. Safe delivery of transaction commits (or rollbacks) is not necessary either. If a processor fails it rolls back its in-flight transactions. When it merges with the cluster again it synchs up its state with the cluster and does not begin processing transactions until it is in synch.
 
-# TODO
+# DONE
 
 - Write some good "user data" to provision an ec2 instance for. It needs rust, vscode, and https access.
+    - This is done. See user_data file in this repo. You will need to edit it and put your own key in it.
+
+# TODO
+
 - Figure out how to publish API documentation on github
 - Write requirements for authentication
 - Write requirements for backup
@@ -112,6 +116,16 @@ In this section I describe some code modules or crates that we have identified s
     - Install rust-analyzer vscode extension (you have to do re-do this each time)
     - When rust-analyzer breaks click on the icon at the bottom, stop and start the rust-analyzer server
 
+- The query statistics service (QSS) needs to collect stats on every SQL query and sub-query used. This
+is the only way to ensure that we use all the knowledge available about the contents of the database
+short of running special queries to get it. For example, a SELECT * FROM mytable needs to collect statistics
+on every column in the select list. These statistics will only apply to mytable and to this particular query.
+Statement SELECT mycolumn FROM mytable can use the same statistics. Statement SELECT * FROM mytable WHERE
+mycolumn = 1 will have its own statistics. So will SELECT * FROM mytable WHERE mycolumn = 2. None of this
+information can be thrown away a priori. However, storing this information costs money, so the database
+needs to maintain metrics on its statistics database and manage it. It needs to keep track of which statistics
+are proving useful. And it has to present this information to the administrator and suggest changes (such as deleting certain data, or stopping collection of certain statistics), leaving the choice to the administrator. And it needs to keep track of which statements use which directives.
+
 # Backlog
 
 - Write a driver that runs simple SQL statements (no parameters.)
@@ -119,11 +133,13 @@ In this section I describe some code modules or crates that we have identified s
 - The listener calls the parser, which parses the SQL statement into an AST.
 - The listener calls the type checker, which checks the AST and produces an abstract query plan.
 - The listener calls the optimizer, which turns the abstract query plan into a real query plan.
+- The optimizer calls the query statistics service (QSS) to find out stats about the objects.
 - The listener calls the table representation service (TRS) in the plan and runs the statement.
 - The driver requests a session ID. Figure out a way for the listener to generate this.
 - The type checker calls the data dictionary service (DDS), to look up tables etc.
 - The type checker gets a shared dictionary lock on the relevant items (from the DDS.)
 - The TRS runs the query operation.
+- The listener collects statistics and updates the QSS. 
 - Add support for these SQL statements, in order:
     - A trivial INSERT statement.
     - A trivial UPDATE statement.
