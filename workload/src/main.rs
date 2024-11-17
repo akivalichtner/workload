@@ -15,8 +15,25 @@ impl DataSource {
             password: String::from(password)
         }
     }
+
+    fn get_connection(&self) -> Connection {
+        let connection = Connection{};
+        connection.connect(&self.url, self.port, &self.user, &self.password);
+        connection
+    }
+}
+
+struct Connection {
+
+}
+
+impl Connection {
+    fn connect(&self, url: &str, port: u16, user: &str, password: &str) -> () {
+        todo!()
+    }
 }
 
 fn main() {
-    let _data_source = DataSource::new("myname", 8080, "myuser", "mypassword");
+    let data_source = DataSource::new("myname", 8080, "myuser", "mypassword");
+    let _connection = data_source.get_connection();
 }
