@@ -51,7 +51,6 @@ impl Connection {
                 return Err(DatabaseError::ConnectToListenerFailed)
             }
         }
-        todo!()
     }
 
     fn create_statement(&self) -> Statement {
