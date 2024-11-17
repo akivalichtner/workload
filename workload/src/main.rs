@@ -1,16 +1,14 @@
 
 struct DataSource {
     url: String,
-    port: u16,
     user: String,
     password: String
 }
 
 impl DataSource {
-    fn new(url: &str, port: u16, user: &str, password: &str) -> DataSource {
+    fn new(url: &str, user: &str, password: &str) -> DataSource {
         DataSource {
             url: String::from(url),
-            port: port,
             user: String::from(user),
             password: String::from(password)
         }
@@ -18,7 +16,7 @@ impl DataSource {
 
     fn get_connection(&self) -> Connection {
         let connection = Connection{};
-        connection.connect(&self.url, self.port, &self.user, &self.password);
+        connection.connect(&self.url, &self.user, &self.password);
         connection
     }
 }
@@ -28,7 +26,7 @@ struct Connection {
 }
 
 impl Connection {
-    fn connect(&self, url: &str, port: u16, user: &str, password: &str) -> () {
+    fn connect(&self, url: &str, user: &str, password: &str) -> () {
         todo!()
     }
 
@@ -74,7 +72,7 @@ impl ResultSet {
 }
 
 fn main() {
-    let data_source = DataSource::new("myname", 8080, "myuser", "mypassword");
+    let data_source = DataSource::new("myname", "myuser", "mypassword");
     let connection = data_source.get_connection();
     let statement = connection.create_statement();
     let _rows = statement.execute_update("INSERT INTO t (c) VALUES (1)");
