@@ -56,6 +56,8 @@ enum DriverProtocolCommand<'a> {
     Fail,
     Pass,
     Commit,
+    Execute{ sql: &'a str },
+    Executed{ rows: u64 },
 }
 pub struct Connection {
     driver_protocol_stream: Option<DriverProtocolStream>,
@@ -79,7 +81,7 @@ impl Connection {
     }
 
     pub fn create_statement(&self) -> Statement {
-        Statement {}
+        Statement::new(&self.driver_protocol_stream)
     }
 
     pub fn commit(&self) -> Result<(), DatabaseError> {
@@ -118,15 +120,35 @@ impl Connection {
     }
 }
 
-pub struct Statement {}
+pub struct Statement<'a> {
+    driver_protocol_stream: &'a Option<DriverProtocolStream>,
+}
 
-impl Statement {
+impl<'a> Statement<'a> {
+    fn new(driver_protocol_stream: &'a Option<DriverProtocolStream>) -> Statement {
+        Statement { driver_protocol_stream }
+    }
+
     pub fn execute_query(&self, sql: &str) -> Result<ResultSet, DatabaseError> {
         Ok(ResultSet {})
     }
 
     pub fn execute_update(&self, sql: &str) -> Result<u64, DatabaseError> {
-        todo!()
+        if let Some(stream) = &self.driver_protocol_stream {
+            match stream.write(DriverProtocolCommand::Execute{ sql }) {
+                Ok(()) => {
+                    match stream.read() {
+                        Ok(DriverProtocolCommand::Executed{ rows }) => Ok(rows),
+                        Ok(DriverProtocolCommand::Fail) => Err(DatabaseError::AuthenticationFailed),
+                        Ok(_) => Err(DatabaseError::ProtocolViolation),
+                        Err(database_error) => Err(database_error)
+                    }        
+                },
+                Err(database_error) => Err(database_error)
+            }
+        } else {
+            Err(DatabaseError::IllegalState)
+        }
     }
 }
 pub struct ResultSet {}
