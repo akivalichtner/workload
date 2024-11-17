@@ -130,6 +130,7 @@ are proving useful. And it has to present this information to the administrator 
 
 - Write a driver that runs simple SQL statements (no parameters.)
 - Write a listener service that receives the SQL from driver.
+- Use TCP for the protocol.
 - The listener calls the parser, which parses the SQL statement into an AST.
 - The listener calls the type checker, which checks the AST and produces an abstract query plan.
 - The listener calls the optimizer, which turns the abstract query plan into a real query plan.
