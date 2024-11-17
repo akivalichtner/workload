@@ -1,6 +1,5 @@
 use std::fmt;
 use std::net;
-
 pub struct DataSource {
     url: String,
     port: u16,
@@ -130,7 +129,6 @@ impl Statement {
         todo!()
     }
 }
-
 pub struct ResultSet {}
 
 impl ResultSet {
@@ -146,7 +144,6 @@ impl ResultSet {
         todo!()
     }
 }
-
 pub enum DatabaseError {
     ConnectToListenerFailed,
     AuthenticationFailed,

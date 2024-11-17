@@ -149,3 +149,9 @@ are proving useful. And it has to present this information to the administrator 
 - Have two representations of a table.
 - At this point you have all the main parts of the system: driver, listener, parser, data dictionary,
   optimizer, concurrency control, and replication.
+
+# Add to Backlog
+
+- Connection pooling. Must re-open broken streams to use old connections.
+- Prepared statements.
+- Offer HTTP and HTTPS as a choice of transport protocol.
