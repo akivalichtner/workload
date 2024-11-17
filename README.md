@@ -111,3 +111,24 @@ In this section I describe some code modules or crates that we have identified s
     - Scp ssh keys (they are used for github communication)
     - Install rust-analyzer vscode extension (you have to do re-do this each time)
     - When rust-analyzer breaks click on the icon at the bottom, stop and start the rust-analyzer server
+
+# Backlog
+
+- Write a driver that runs simple SQL statements (no parameters.)
+- Write a listener service that receives the SQL from driver.
+- The listener calls the parser, which parses the SQL statement into an AST.
+- The listener calls the type checker, which checks the AST and produces an abstract query plan.
+- The listener calls the optimizer, which turns the abstract query plan into a real query plan.
+- The listener calls the table representation service (TRS) in the plan and runs the statement.
+- The driver requests a session ID. Figure out a way for the listener to generate this.
+- The type checker calls the data dictionary service (DDS), to look up tables etc.
+- The type checker gets a shared dictionary lock on the relevant items (from the DDS.)
+- The TRS runs the query operation.
+- Add support for these SQL statements, in order:
+    - A trivial INSERT statement.
+    - A trivial UPDATE statement.
+    - A trivial SELECT statement (full table scan).
+    - COMMIT statement.
+- Have two representations of a table.
+- At this point you have all the main parts of the system: driver, listener, parser, data dictionary,
+  optimizer, concurrency control, and replication.
