@@ -1,10 +1,13 @@
-use std::{fmt::{self}, net::TcpStream};
+use std::{
+    fmt::{self},
+    net::TcpStream,
+};
 
 struct DataSource {
     url: String,
     port: u16,
     user: String,
-    password: String
+    password: String,
 }
 
 impl DataSource {
@@ -13,21 +16,21 @@ impl DataSource {
             url: String::from(url),
             port,
             user: String::from(user),
-            password: String::from(password)
+            password: String::from(password),
         }
     }
 
     fn get_connection(&self) -> Result<Connection, DatabaseError> {
-        let mut connection = Connection{ tcp_stream: None};
+        let mut connection = Connection { tcp_stream: None };
         match connection.connect(&self.url, self.port, &self.user, &self.password) {
             Ok(_) => Ok(connection),
-            Err(error) => Err(error)
+            Err(error) => Err(error),
         }
     }
 }
 
 enum DatabaseError {
-    ConnectToListenerFailed
+    ConnectToListenerFailed,
 }
 
 impl fmt::Display for DatabaseError {
@@ -37,38 +40,40 @@ impl fmt::Display for DatabaseError {
 }
 
 struct Connection {
-    tcp_stream: Option<TcpStream>
+    tcp_stream: Option<TcpStream>,
 }
 
 impl Connection {
-    fn connect(&mut self, url: &str, port: u16, user: &str, password: &str) -> Result<(), DatabaseError> {
+    fn connect(
+        &mut self,
+        url: &str,
+        port: u16,
+        user: &str,
+        password: &str,
+    ) -> Result<(), DatabaseError> {
         match TcpStream::connect(format!("{}:{}", url, port)) {
             Ok(tcp_stream) => {
                 self.tcp_stream = Some(tcp_stream);
-                return Ok(())
-            },
-            Err(error) => {
-                return Err(DatabaseError::ConnectToListenerFailed)
+                return Ok(());
             }
+            Err(error) => return Err(DatabaseError::ConnectToListenerFailed),
         }
     }
 
     fn create_statement(&self) -> Statement {
-        Statement{
-        }
+        Statement {}
     }
-    
+
     fn commit(&self) {
         todo!()
     }
 }
 
-struct Statement {
-}
+struct Statement {}
 
 impl Statement {
     fn execute_query(&self, sql: &str) -> Result<ResultSet, DatabaseError> {
-        Ok(ResultSet{})
+        Ok(ResultSet {})
     }
 
     fn execute_update(&self, sql: &str) -> Result<u64, DatabaseError> {
@@ -76,9 +81,7 @@ impl Statement {
     }
 }
 
-struct ResultSet {
-
-}
+struct ResultSet {}
 
 impl ResultSet {
     fn has_next(&self) -> bool {
@@ -113,13 +116,13 @@ fn main() {
                         result_set.next();
                         result_set.get_string("c");
                     }
-                    connection.commit();        
+                    connection.commit();
                 }
                 Err(database_error) => {
                     println!("Query failed: {}", database_error);
                 }
             }
-        },
+        }
         Err(error) => {
             println!("Error connection to database: {}", error);
         }
