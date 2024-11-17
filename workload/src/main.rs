@@ -31,9 +31,20 @@ impl Connection {
     fn connect(&self, url: &str, port: u16, user: &str, password: &str) -> () {
         todo!()
     }
+
+    fn create_statement(&mut self, sql: &str) -> Statement {
+        Statement{
+            sql: String::from(sql)
+        }
+    }
+}
+
+struct Statement {
+    sql: String
 }
 
 fn main() {
     let data_source = DataSource::new("myname", 8080, "myuser", "mypassword");
-    let _connection = data_source.get_connection();
+    let mut connection = data_source.get_connection();
+    let _statement = connection.create_statement("INSERT INTO t (c) VALUES (1)");
 }
