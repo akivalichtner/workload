@@ -165,6 +165,8 @@ impl ResultSet {
         todo!()
     }
 }
+
+#[derive(Debug)]
 pub enum DatabaseError {
     ConnectToListenerFailed,
     AuthenticationFailed,
