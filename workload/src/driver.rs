@@ -194,7 +194,7 @@ impl<'a> Statement<'a> {
 
     pub fn execute_update(&mut self, sql: &str) -> Result<u64, DatabaseError> {
         if let Some(stream) = &mut self.driver_protocol_stream {
-            match &stream.write_command(&DriverProtocolCommand::Execute{ sql }) {
+            match stream.write_command(&DriverProtocolCommand::Execute{ sql }) {
                 Ok(()) => {
                     match stream.read() {
                         Ok(DriverProtocolCommand::Executed{ rows }) => Ok(rows),
