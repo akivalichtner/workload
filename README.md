@@ -152,6 +152,8 @@ are proving useful. And it has to present this information to the administrator 
 
 # Add to Backlog
 
+- Implement Error trait for DatabaseError and preserve the source (cause)
 - Connection pooling. Must re-open broken streams to use old connections.
 - Prepared statements.
 - Offer HTTP and HTTPS as a choice of transport protocol.
+

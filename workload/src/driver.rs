@@ -1,5 +1,6 @@
 use std::fmt;
-use std::net;
+use std::io::Write;
+use std::net::TcpStream;
 pub struct DataSource {
     url: String,
     port: u16,
@@ -35,30 +36,88 @@ impl fmt::Display for DatabaseError {
 }
 
 struct DriverProtocolStream {
-    tcp_stream: net::TcpStream,
+    tcp_stream: TcpStream,
 }
 
 impl DriverProtocolStream {
-    fn new(tcp_stream: net::TcpStream) -> DriverProtocolStream {
+    fn new(tcp_stream: TcpStream) -> DriverProtocolStream {
         DriverProtocolStream { tcp_stream }
     }
 
-    fn write(&self, command: DriverProtocolCommand) -> Result<(), DatabaseError> {
-        todo!()
+    fn write_command(&mut self, command: &DriverProtocolCommand) -> Result<(), DatabaseError> {
+        self.write_u8(DriverProtocolStream::get_op_code(&command))?;
+        match command {
+            DriverProtocolCommand::Authenticate{user, password} => {
+                self.write_string(user)?;
+                self.write_string(password)?;
+                Ok(())
+            }
+            DriverProtocolCommand::Execute { sql } => {
+                self.write_string(sql)?;
+                Ok(())
+            }
+            DriverProtocolCommand::Executed { rows: _ } => {
+                todo!()
+            }
+            DriverProtocolCommand::Commit => {
+                todo!()
+            }
+            DriverProtocolCommand::Fail => {
+                todo!()
+            }
+            DriverProtocolCommand::Pass => {
+                todo!()
+            }
+        }
     }
 
     fn read(&self) -> Result<DriverProtocolCommand, DatabaseError> {
         todo!()
     }
+
+    fn get_op_code(command: &DriverProtocolCommand) -> u8 {
+        match command {
+            DriverProtocolCommand::Authenticate { user: _ , password: _ } => 1,
+            DriverProtocolCommand::Commit => 2,
+            DriverProtocolCommand::Execute { sql: _ } => 3,
+            DriverProtocolCommand::Executed { rows: _ } => 4,
+            DriverProtocolCommand::Fail => 5,
+            DriverProtocolCommand::Pass => 6,
+        }
+    }
+    
+    fn write_u8(&mut self, value: u8) -> Result<(), DatabaseError>  {
+        match DriverProtocolStream::write(&mut self.tcp_stream, &[value]) {
+            Ok(_) => { Ok(()) }
+            Err(_) => Err(DatabaseError::NetworkError)
+        }
+    }
+    
+    fn write_string(&self, _user: &str) -> Result<(), DatabaseError> {
+        todo!()
+    }
+
+    fn write(tcp_stream: &mut TcpStream, buf: &[u8]) -> Result<(), DatabaseError> {
+        match tcp_stream.write(buf) {
+            Ok(_) => Ok(()),
+            Err(_) => {
+                // FIXME wrap error source
+                Err(DatabaseError::NetworkError)
+            }
+        }
+    }
+
 }
+
 enum DriverProtocolCommand<'a> {
     Authenticate { user: &'a str, password: &'a str },
-    Fail,
-    Pass,
     Commit,
     Execute{ sql: &'a str },
     Executed{ rows: u64 },
+    Fail,
+    Pass,
 }
+
 pub struct Connection {
     driver_protocol_stream: Option<DriverProtocolStream>,
 }
@@ -71,7 +130,7 @@ impl Connection {
         user: &str,
         password: &str,
     ) -> Result<(), DatabaseError> {
-        match net::TcpStream::connect(format!("{}:{}", url, port)) {
+        match TcpStream::connect(format!("{}:{}", url, port)) {
             Ok(tcp_stream) => {
                 self.driver_protocol_stream = Some(DriverProtocolStream::new(tcp_stream));
                 self.authenticate(user, password)
@@ -86,7 +145,7 @@ impl Connection {
 
     pub fn commit(&self) -> Result<(), DatabaseError> {
         if let Some(stream) = &self.driver_protocol_stream {
-            match stream.write(DriverProtocolCommand::Commit) {
+            match stream.write_command(&DriverProtocolCommand::Commit) {
                 Ok(()) => {
                     match stream.read() {
                         Ok(DriverProtocolCommand::Pass) => Ok(()),
@@ -103,7 +162,7 @@ impl Connection {
 
     fn authenticate(&self, user: &str, password: &str) -> Result<(), DatabaseError> {
         if let Some(stream) = &self.driver_protocol_stream {
-            match stream.write(DriverProtocolCommand::Authenticate { user, password }) {
+            match stream.write_command(&DriverProtocolCommand::Authenticate { user, password }) {
                 Ok(()) => {
                     match stream.read() {
                         Ok(DriverProtocolCommand::Pass) => Ok(()),
@@ -129,13 +188,13 @@ impl<'a> Statement<'a> {
         Statement { driver_protocol_stream }
     }
 
-    pub fn execute_query(&self, sql: &str) -> Result<ResultSet, DatabaseError> {
+    pub fn execute_query(&self, _sql: &str) -> Result<ResultSet, DatabaseError> {
         Ok(ResultSet {})
     }
 
     pub fn execute_update(&self, sql: &str) -> Result<u64, DatabaseError> {
         if let Some(stream) = &self.driver_protocol_stream {
-            match stream.write(DriverProtocolCommand::Execute{ sql }) {
+            match stream.write_command(&DriverProtocolCommand::Execute{ sql }) {
                 Ok(()) => {
                     match stream.read() {
                         Ok(DriverProtocolCommand::Executed{ rows }) => Ok(rows),
@@ -161,15 +220,16 @@ impl ResultSet {
         todo!()
     }
 
-    pub fn get_string(&self, column: &str) {
+    pub fn get_string(&self, _column: &str) {
         todo!()
     }
 }
 
 #[derive(Debug)]
 pub enum DatabaseError {
-    ConnectToListenerFailed,
     AuthenticationFailed,
-    ProtocolViolation,
+    NetworkError,
+    ConnectToListenerFailed,
     IllegalState,
+    ProtocolViolation,
 }
