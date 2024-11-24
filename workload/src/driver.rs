@@ -143,8 +143,8 @@ impl Connection {
         Statement::new(&self.driver_protocol_stream)
     }
 
-    pub fn commit(&self) -> Result<(), DatabaseError> {
-        if let Some(stream) = &self.driver_protocol_stream {
+    pub fn commit(&mut self) -> Result<(), DatabaseError> {
+        if let Some(stream) = &mut self.driver_protocol_stream {
             match stream.write_command(&DriverProtocolCommand::Commit) {
                 Ok(()) => {
                     match stream.read() {
@@ -160,8 +160,8 @@ impl Connection {
         }
     }
 
-    fn authenticate(&self, user: &str, password: &str) -> Result<(), DatabaseError> {
-        if let Some(stream) = &self.driver_protocol_stream {
+    fn authenticate(&mut self, user: &str, password: &str) -> Result<(), DatabaseError> {
+        if let Some(stream) = &mut self.driver_protocol_stream {
             match stream.write_command(&DriverProtocolCommand::Authenticate { user, password }) {
                 Ok(()) => {
                     match stream.read() {
@@ -192,9 +192,9 @@ impl<'a> Statement<'a> {
         Ok(ResultSet {})
     }
 
-    pub fn execute_update(&self, sql: &str) -> Result<u64, DatabaseError> {
-        if let Some(stream) = &self.driver_protocol_stream {
-            match stream.write_command(&DriverProtocolCommand::Execute{ sql }) {
+    pub fn execute_update(&mut self, sql: &str) -> Result<u64, DatabaseError> {
+        if let Some(stream) = &mut self.driver_protocol_stream {
+            match &stream.write_command(&DriverProtocolCommand::Execute{ sql }) {
                 Ok(()) => {
                     match stream.read() {
                         Ok(DriverProtocolCommand::Executed{ rows }) => Ok(rows),
