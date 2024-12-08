@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use crate::database::database_error::DatabaseError;
 
 use super::{protocol_stream::{DriverProtocolCommand, DriverProtocolStream}, row::Row};
@@ -8,8 +10,7 @@ pub struct ResultSet<'a> {
 
     driver_protocol_stream: &'a mut DriverProtocolStream,
     fetch_size: u64,
-    rows: Vec<Row>,
-    position: usize,
+    rows: VecDeque<Row>,
 }
 
 impl<'a> ResultSet<'a> {
@@ -18,8 +19,7 @@ impl<'a> ResultSet<'a> {
         ResultSet {
             driver_protocol_stream,
             fetch_size: DEFAULT_FETCH_SIZE,
-            rows: Vec::new(),
-            position: 0,
+            rows: VecDeque::new(),
         }
     }
 
@@ -35,11 +35,11 @@ impl<'a> ResultSet<'a> {
     }
 
     pub fn next(&mut self) -> Result<(), DatabaseError> {
-        self.position += 1;
-        if self.position < self.rows.len() {
-            Ok(())
-        } else {
+        if self.rows.is_empty() {
             Err(DatabaseError::IllegalState)
+        } else {
+            self.rows.pop_front();
+            Ok(())
         }
     }
 
