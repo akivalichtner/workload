@@ -32,8 +32,8 @@ impl Connection {
         }
     }
 
-    pub fn create_statement(&self) -> Statement {
-        Statement::new(&self.driver_protocol_stream)
+    pub fn create_statement(&mut self) -> Statement {
+        Statement::new(&mut self.driver_protocol_stream)
     }
 
     pub fn commit(&mut self) -> Result<(), DatabaseError> {
