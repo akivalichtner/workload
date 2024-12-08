@@ -24,17 +24,23 @@ impl DriverProtocolStream {
                 self.write_string(sql)?;
                 Ok(())
             }
-            DriverProtocolCommand::Executed { rows: _ } => {
-                todo!()
+            DriverProtocolCommand::GetUpdateCount => {
+                Ok(())
+            }
+            DriverProtocolCommand::Ready => {
+                Ok(())
             }
             DriverProtocolCommand::Commit => {
-                todo!()
+                Ok(())
             }
             DriverProtocolCommand::Fail => {
-                todo!()
+                Ok(())
             }
             DriverProtocolCommand::Pass => {
-                todo!()
+                Ok(())
+            }
+            DriverProtocolCommand::U64 { value } => {
+                self.write_u64(value)
             }
         }
     }
@@ -48,9 +54,11 @@ impl DriverProtocolStream {
             DriverProtocolCommand::Authenticate { user: _ , password: _ } => 1,
             DriverProtocolCommand::Commit => 2,
             DriverProtocolCommand::Execute { sql: _ } => 3,
-            DriverProtocolCommand::Executed { rows: _ } => 4,
-            DriverProtocolCommand::Fail => 5,
-            DriverProtocolCommand::Pass => 6,
+            DriverProtocolCommand::GetUpdateCount => 4,
+            DriverProtocolCommand::Ready => 5,
+            DriverProtocolCommand::Fail => 6,
+            DriverProtocolCommand::Pass => 7,
+            DriverProtocolCommand::U64 { value: _ } => 8,
         }
     }
     
@@ -60,7 +68,11 @@ impl DriverProtocolStream {
             Err(_) => Err(DatabaseError::NetworkError)
         }
     }
-    
+
+    pub fn write_u64(&mut self, _value: &u64) -> Result<(), DatabaseError>  {
+        todo!()
+    }
+
     pub fn write_string(&self, _user: &str) -> Result<(), DatabaseError> {
         todo!()
     }
@@ -81,7 +93,9 @@ pub enum DriverProtocolCommand<'a> {
     Authenticate { user: &'a str, password: &'a str },
     Commit,
     Execute{ sql: &'a str },
-    Executed{ rows: u64 },
+    Ready,
     Fail,
     Pass,
+    GetUpdateCount,
+    U64{ value: u64 }
 }
