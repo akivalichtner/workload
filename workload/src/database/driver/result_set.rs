@@ -9,6 +9,7 @@ pub struct ResultSet<'a> {
     driver_protocol_stream: &'a mut DriverProtocolStream,
     fetch_size: u64,
     rows: Vec<Row>,
+    position: usize,
 }
 
 impl<'a> ResultSet<'a> {
@@ -18,6 +19,7 @@ impl<'a> ResultSet<'a> {
             driver_protocol_stream,
             fetch_size: DEFAULT_FETCH_SIZE,
             rows: Vec::new(),
+            position: 0,
         }
     }
 
@@ -32,8 +34,13 @@ impl<'a> ResultSet<'a> {
         !self.rows.is_empty()
     }
 
-    pub fn next(&self) {
-        todo!()
+    pub fn next(&mut self) -> Result<(), DatabaseError> {
+        self.position += 1;
+        if self.position < self.rows.len() {
+            Ok(())
+        } else {
+            Err(DatabaseError::IllegalState)
+        }
     }
 
     pub fn get_string(&self, _column: &str) {
