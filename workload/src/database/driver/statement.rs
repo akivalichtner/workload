@@ -7,7 +7,7 @@ pub struct Statement<'a> {
 }
 
 impl<'a> Statement<'a> {
-    pub fn new(driver_protocol_stream: &'a Option<DriverProtocolStream>) -> Statement {
+    pub fn new(driver_protocol_stream: &Option<DriverProtocolStream>) -> Statement {
         Statement { driver_protocol_stream }
     }
 
