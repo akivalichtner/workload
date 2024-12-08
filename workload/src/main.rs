@@ -1,6 +1,7 @@
-use driver::*;
+use crate::database::driver::data_source::*;
+use crate::database::database_error::DatabaseError;
 
-mod driver;
+mod database;
 
 fn main() -> Result<(), DatabaseError> {
     let data_source = DataSource::new("myname", 8080, "myuser", "mypassword");
