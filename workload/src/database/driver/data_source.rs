@@ -1,5 +1,5 @@
-use crate::database::database_error::DatabaseError;
 use super::connection::Connection;
+use crate::database::database_error::DatabaseError;
 
 pub struct DataSource {
     url: String,
@@ -26,4 +26,3 @@ impl DataSource {
         }
     }
 }
-

@@ -1,15 +1,17 @@
-use std::net::TcpStream;
+use super::{
+    protocol_stream::{DriverProtocolCommand, DriverProtocolStream},
+    statement::Statement,
+};
 use crate::database::database_error::DatabaseError;
-use super::{protocol_stream::{DriverProtocolCommand, DriverProtocolStream}, statement::Statement};
+use std::net::TcpStream;
 
 pub struct Connection {
     driver_protocol_stream: Option<DriverProtocolStream>,
 }
 
 impl Connection {
-
     pub fn new() -> Connection {
-        Connection{
+        Connection {
             driver_protocol_stream: None,
         }
     }
@@ -37,14 +39,12 @@ impl Connection {
     pub fn commit(&mut self) -> Result<(), DatabaseError> {
         if let Some(stream) = &mut self.driver_protocol_stream {
             match stream.write_command(&DriverProtocolCommand::Commit) {
-                Ok(()) => {
-                    match stream.read() {
-                        Ok(DriverProtocolCommand::Pass) => Ok(()),
-                        Ok(_) => Err(DatabaseError::ProtocolViolation),
-                        Err(database_error) => Err(database_error)
-                    }        
+                Ok(()) => match stream.read() {
+                    Ok(DriverProtocolCommand::Pass) => Ok(()),
+                    Ok(_) => Err(DatabaseError::ProtocolViolation),
+                    Err(database_error) => Err(database_error),
                 },
-                Err(database_error) => Err(database_error)
+                Err(database_error) => Err(database_error),
             }
         } else {
             Err(DatabaseError::IllegalState)
@@ -54,15 +54,13 @@ impl Connection {
     fn authenticate(&mut self, user: &str, password: &str) -> Result<(), DatabaseError> {
         if let Some(stream) = &mut self.driver_protocol_stream {
             match stream.write_command(&DriverProtocolCommand::Authenticate { user, password }) {
-                Ok(()) => {
-                    match stream.read() {
-                        Ok(DriverProtocolCommand::Pass) => Ok(()),
-                        Ok(DriverProtocolCommand::Fail) => Err(DatabaseError::AuthenticationFailed),
-                        Ok(_) => Err(DatabaseError::ProtocolViolation),
-                        Err(database_error) => Err(database_error)
-                    }        
+                Ok(()) => match stream.read() {
+                    Ok(DriverProtocolCommand::Pass) => Ok(()),
+                    Ok(DriverProtocolCommand::Fail) => Err(DatabaseError::AuthenticationFailed),
+                    Ok(_) => Err(DatabaseError::ProtocolViolation),
+                    Err(database_error) => Err(database_error),
                 },
-                Err(database_error) => Err(database_error)
+                Err(database_error) => Err(database_error),
             }
         } else {
             Err(DatabaseError::IllegalState)

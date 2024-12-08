@@ -1,5 +1,5 @@
-use crate::database::driver::data_source::*;
 use crate::database::database_error::DatabaseError;
+use crate::database::driver::data_source::*;
 
 mod database;
 

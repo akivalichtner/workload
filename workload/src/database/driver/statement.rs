@@ -34,7 +34,7 @@ impl<'a> Statement<'a> {
         if let Some(ref mut stream) = &mut self.driver_protocol_stream {
             match stream.write_command(&DriverProtocolCommand::GetUpdateCount) {
                 Ok(()) => match stream.read() {
-                    Ok(DriverProtocolCommand::U64{ value }) => Ok(value),
+                    Ok(DriverProtocolCommand::U64 { value }) => Ok(value),
                     Ok(_) => Err(DatabaseError::ProtocolViolation),
                     Err(database_error) => Err(database_error),
                 },
