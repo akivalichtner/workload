@@ -26,13 +26,6 @@ impl<'a> ResultSet<'a> {
     }
 
     pub fn has_next(&mut self) -> bool {
-        // if vector empty
-        //   fetch
-        // if vector not empty
-        //   true
-        // else 
-        //   false
-        self.fetch();
         if self.rows.is_empty() {
             self.fetch();
         }
