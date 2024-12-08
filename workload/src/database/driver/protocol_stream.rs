@@ -20,14 +20,12 @@ impl DriverProtocolStream {
                 self.write_string(password)?;
                 Ok(())
             }
-            DriverProtocolCommand::Execute { sql } => {
-                self.write_string(sql)?;
-                Ok(())
-            }
+            DriverProtocolCommand::Execute { sql } => self.write_string(sql),
             DriverProtocolCommand::GetUpdateCount => Ok(()),
             DriverProtocolCommand::Ready => Ok(()),
             DriverProtocolCommand::Commit => Ok(()),
             DriverProtocolCommand::Fail => Ok(()),
+            DriverProtocolCommand::Fetch{ fetch_size } => self.write_u64(fetch_size),
             DriverProtocolCommand::Pass => Ok(()),
             DriverProtocolCommand::U64 { value } => self.write_u64(value),
         }
@@ -48,8 +46,9 @@ impl DriverProtocolStream {
             DriverProtocolCommand::GetUpdateCount => 4,
             DriverProtocolCommand::Ready => 5,
             DriverProtocolCommand::Fail => 6,
-            DriverProtocolCommand::Pass => 7,
-            DriverProtocolCommand::U64 { value: _ } => 8,
+            DriverProtocolCommand::Fetch { fetch_size: _ }=> 7,
+            DriverProtocolCommand::Pass => 8,
+            DriverProtocolCommand::U64 { value: _ } => 9,
         }
     }
 
@@ -85,6 +84,7 @@ pub enum DriverProtocolCommand<'a> {
     Execute { sql: &'a str },
     Ready,
     Fail,
+    Fetch { fetch_size: u64 },
     Pass,
     GetUpdateCount,
     U64 { value: u64 },
