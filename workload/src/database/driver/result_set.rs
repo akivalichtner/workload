@@ -33,7 +33,10 @@ impl<'a> ResultSet<'a> {
         // else 
         //   false
         self.fetch();
-        todo!()
+        if self.rows.is_empty() {
+            self.fetch();
+        }
+        !self.rows.is_empty()
     }
 
     pub fn next(&self) {
