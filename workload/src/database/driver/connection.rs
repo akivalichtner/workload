@@ -1,7 +1,5 @@
 use std::net::TcpStream;
-
 use crate::database::database_error::DatabaseError;
-
 use super::{protocol_stream::{DriverProtocolCommand, DriverProtocolStream}, statement::Statement};
 
 pub struct Connection {
