@@ -1,5 +1,4 @@
 use crate::database::database_error::DatabaseError;
-
 use super::{protocol_stream::{DriverProtocolCommand, DriverProtocolStream}, result_set::ResultSet};
 
 pub struct Statement<'a> {
