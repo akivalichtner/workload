@@ -3,6 +3,7 @@ use std::fmt;
 #[derive(Debug)]
 pub enum DatabaseError {
     AuthenticationFailed,
+    Defect,
     NetworkError,
     ConnectToListenerFailed,
     IllegalState,

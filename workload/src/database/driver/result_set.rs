@@ -43,7 +43,14 @@ impl<'a> ResultSet<'a> {
         }
     }
 
-    pub fn get_string(&self, _column: &str) {
-        todo!()
+    pub fn get_string(&self, column: &str) -> Result<String, DatabaseError> {
+        if (self.rows.is_empty()) {
+            Err(DatabaseError::IllegalState)            
+        } else {
+           match self.rows.front() {
+            Some(row) => row.get_string(column),
+            None => Err(DatabaseError::Defect)
+           }
+        }
     }
 }
