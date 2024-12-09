@@ -19,7 +19,11 @@ impl<'a> Statement<'a> {
         if let Some(ref mut stream) = &mut self.driver_protocol_stream {
             match stream.write_command(&DriverProtocolCommand::Execute { sql }) {
                 Ok(()) => match stream.read() {
-                    Ok(DriverProtocolCommand::Ready) => Ok(ResultSet::new(stream)),
+                    Ok(DriverProtocolCommand::Ready) => {
+                        let mut result_set = ResultSet::new(stream);
+                        result_set.read_metadata()?;
+                        Ok(result_set)
+                    }
                     Ok(_) => Err(DatabaseError::ProtocolViolation),
                     Err(database_error) => Err(database_error),
                 },
