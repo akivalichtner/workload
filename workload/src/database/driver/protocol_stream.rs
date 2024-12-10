@@ -54,18 +54,18 @@ impl DriverProtocolStream {
         }
     }
 
-    pub fn write_u8(&mut self, value: u8) -> Result<(), DatabaseError> {
+    fn write_u8(&mut self, value: u8) -> Result<(), DatabaseError> {
         match DriverProtocolStream::write(&mut self.tcp_stream, &[value]) {
             Ok(_) => Ok(()),
             Err(_) => Err(DatabaseError::NetworkError),
         }
     }
 
-    pub fn write_u64(&mut self, _value: &u64) -> Result<(), DatabaseError> {
+    fn write_u64(&mut self, _value: &u64) -> Result<(), DatabaseError> {
         todo!()
     }
 
-    pub fn write_string(&self, _user: &str) -> Result<(), DatabaseError> {
+    fn write_string(&self, _user: &str) -> Result<(), DatabaseError> {
         todo!()
     }
 
