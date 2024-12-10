@@ -16,7 +16,7 @@ struct Column {
 
 impl Column {
     fn new(name: String, column_type: Type) -> Column {
-        Column{ name, column_type}
+        Column { name, column_type }
     }
 }
 
@@ -40,18 +40,16 @@ impl<'a> ResultSet<'a> {
     pub fn read_metadata(&mut self) -> Result<(), DatabaseError> {
         // FIXME read number and type of columns
         match self.stream.read_command() {
-            Ok(command) => {
-                match command {
-                    DriverProtocolCommand::U8{ value } => {
-                       for _ in 1..value {
-                            self.read_column()?
-                        }
-                        Ok(())
-                    },
-                    _ => Err(DatabaseError::ProtocolViolation)
+            Ok(command) => match command {
+                DriverProtocolCommand::U8 { value } => {
+                    for _ in 1..value {
+                        self.read_column()?
+                    }
+                    Ok(())
                 }
-            }
-            _ => Err(DatabaseError::ProtocolViolation)
+                _ => Err(DatabaseError::ProtocolViolation),
+            },
+            _ => Err(DatabaseError::ProtocolViolation),
         }
     }
 
@@ -59,11 +57,14 @@ impl<'a> ResultSet<'a> {
         let column_result = self.stream.read_command();
         let type_result = self.stream.read_command();
         match (column_result, type_result) {
-            (Ok(DriverProtocolCommand::String { value: name }), Ok(DriverProtocolCommand::Type { value: column_type })) => {
+            (
+                Ok(DriverProtocolCommand::String { value: name }),
+                Ok(DriverProtocolCommand::Type { value: column_type }),
+            ) => {
                 self.columns.push(Column::new(name, column_type));
                 Ok(())
-            },
-            _ => Err(DatabaseError::ProtocolViolation)
+            }
+            _ => Err(DatabaseError::ProtocolViolation),
         }
     }
 
@@ -75,14 +76,14 @@ impl<'a> ResultSet<'a> {
         match self.stream.write_command(&DriverProtocolCommand::Fetch {
             fetch_size: self.fetch_size,
         }) {
-            Ok(()) => {
-                loop {
-                    match self.stream.read_command() {
-                        Ok(DriverProtocolCommand::Row) => { self.read_row()?; },
-                        Ok(DriverProtocolCommand::Ready) => break Ok(()),
-                        Ok(_) => break Err(DatabaseError::ProtocolViolation),
-                        Err(database_error) => break Err(database_error),
+            Ok(()) => loop {
+                match self.stream.read_command() {
+                    Ok(DriverProtocolCommand::Row) => {
+                        self.read_row()?;
                     }
+                    Ok(DriverProtocolCommand::Ready) => break Ok(()),
+                    Ok(_) => break Err(DatabaseError::ProtocolViolation),
+                    Err(database_error) => break Err(database_error),
                 }
             },
             Err(database_error) => Err(database_error),
