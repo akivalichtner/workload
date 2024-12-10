@@ -3,12 +3,10 @@ use std::net::TcpStream;
 
 use crate::database::database_error::DatabaseError;
 
+use super::column_type::ColumnType;
+
 pub struct DriverProtocolStream {
     tcp_stream: TcpStream,
-}
-
-pub enum Type {
-    String
 }
 
 impl DriverProtocolStream {
@@ -27,12 +25,12 @@ impl DriverProtocolStream {
             DriverProtocolCommand::Commit => Ok(()),
             DriverProtocolCommand::Execute { sql } => self.write_string(sql),
             DriverProtocolCommand::Fail => Ok(()),
-            DriverProtocolCommand::Fetch{ fetch_size } => self.write_u64(fetch_size),
+            DriverProtocolCommand::Fetch { fetch_size } => self.write_u64(fetch_size),
             DriverProtocolCommand::GetUpdateCount => Ok(()),
             DriverProtocolCommand::Pass => Ok(()),
             DriverProtocolCommand::Ready => Ok(()),
             DriverProtocolCommand::Row => Ok(()),
-            DriverProtocolCommand::String { value }=> self.write_string(value),
+            DriverProtocolCommand::String { value } => self.write_string(value),
             DriverProtocolCommand::Type { value } => self.write_type(value),
             DriverProtocolCommand::U8 { value } => self.write_u8(value),
             DriverProtocolCommand::U64 { value } => self.write_u64(value),
@@ -45,15 +43,12 @@ impl DriverProtocolStream {
 
     fn get_op_code(command: &DriverProtocolCommand) -> u8 {
         match command {
-            DriverProtocolCommand::Authenticate {
-                user: _,
-                password: _,
-            } => 1,
+            DriverProtocolCommand::Authenticate { user: _, password: _ } => 1,
             DriverProtocolCommand::Commit => 2,
             DriverProtocolCommand::GetUpdateCount => 3,
             DriverProtocolCommand::Execute { sql: _ } => 4,
             DriverProtocolCommand::Fail => 5,
-            DriverProtocolCommand::Fetch { fetch_size: _ }=> 6,
+            DriverProtocolCommand::Fetch { fetch_size: _ } => 6,
             DriverProtocolCommand::Pass => 7,
             DriverProtocolCommand::Ready => 8,
             DriverProtocolCommand::Row => 9,
@@ -64,7 +59,7 @@ impl DriverProtocolStream {
         }
     }
 
-    fn write_type(&mut self, value: &Type) -> Result<(), DatabaseError> {
+    fn write_type(&mut self, value: &ColumnType) -> Result<(), DatabaseError> {
         todo!()
     }
 
@@ -102,7 +97,7 @@ pub enum DriverProtocolCommand<'a> {
     Ready,
     Row,
     String { value: String },
-    Type { value: Type },
+    Type { value: ColumnType },
     U8 { value: u8 },
     U64 { value: u64 },
 }

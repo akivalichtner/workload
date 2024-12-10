@@ -1,3 +1,4 @@
+mod column_type;
 pub mod connection;
 pub mod data_source;
 pub mod protocol_stream;

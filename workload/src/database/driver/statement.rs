@@ -10,9 +10,7 @@ pub struct Statement<'a> {
 
 impl<'a> Statement<'a> {
     pub fn new(driver_protocol_stream: &mut Option<DriverProtocolStream>) -> Statement {
-        Statement {
-            driver_protocol_stream,
-        }
+        Statement { driver_protocol_stream }
     }
 
     pub fn execute_query(&mut self, sql: &str) -> Result<ResultSet, DatabaseError> {

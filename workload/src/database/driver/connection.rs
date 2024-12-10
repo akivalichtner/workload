@@ -16,13 +16,7 @@ impl Connection {
         }
     }
 
-    pub fn connect(
-        &mut self,
-        url: &str,
-        port: u16,
-        user: &str,
-        password: &str,
-    ) -> Result<(), DatabaseError> {
+    pub fn connect(&mut self, url: &str, port: u16, user: &str, password: &str) -> Result<(), DatabaseError> {
         match TcpStream::connect(format!("{}:{}", url, port)) {
             Ok(tcp_stream) => {
                 self.driver_protocol_stream = Some(DriverProtocolStream::new(tcp_stream));

@@ -1,4 +1,7 @@
-use super::protocol_stream::{DriverProtocolCommand, DriverProtocolStream, Type};
+use super::{
+    column_type::ColumnType,
+    protocol_stream::{DriverProtocolCommand, DriverProtocolStream},
+};
 use crate::database::database_error::DatabaseError;
 use std::collections::VecDeque;
 
@@ -6,11 +9,11 @@ pub const DEFAULT_FETCH_SIZE: u64 = 256;
 
 struct Column {
     name: String,
-    column_type: Type,
+    column_type: ColumnType,
 }
 
 impl Column {
-    fn new(name: String, column_type: Type) -> Column {
+    fn new(name: String, column_type: ColumnType) -> Column {
         Column { name, column_type }
     }
 }
@@ -46,7 +49,7 @@ impl<'a> ResultSet<'a> {
             Ok(command) => match command {
                 DriverProtocolCommand::U8 { value } => {
                     for _ in 1..value {
-                        self.read_column()?
+                        self.read_column_metadata()?
                     }
                     Ok(())
                 }
@@ -56,7 +59,7 @@ impl<'a> ResultSet<'a> {
         }
     }
 
-    fn read_column(&mut self) -> Result<(), DatabaseError> {
+    fn read_column_metadata(&mut self) -> Result<(), DatabaseError> {
         let column_result = self.stream.read_command();
         let type_result = self.stream.read_command();
         match (column_result, type_result) {
@@ -72,7 +75,12 @@ impl<'a> ResultSet<'a> {
     }
 
     fn read_row(&mut self) -> Result<(), DatabaseError> {
-        todo!()
+        for column in &self.columns {
+            match column.column_type {
+                _ => {}
+            }
+        }
+        Ok(())
     }
 
     fn fetch(&mut self) -> Result<(), DatabaseError> {
