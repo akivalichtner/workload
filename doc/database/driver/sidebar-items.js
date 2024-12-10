@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["column_type","connection","data_source","protocol_stream","result_set","statement"]};
