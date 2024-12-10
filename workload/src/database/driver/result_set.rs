@@ -9,9 +9,14 @@ use super::{
 
 pub const DEFAULT_FETCH_SIZE: u64 = 256;
 
+struct Column {
+
+}
+
 pub struct ResultSet<'a> {
     stream: &'a mut DriverProtocolStream,
     fetch_size: u64,
+    columns: Vec<Column>,
     rows: VecDeque<Row>,
 }
 
@@ -20,12 +25,30 @@ impl<'a> ResultSet<'a> {
         ResultSet {
             stream,
             fetch_size: DEFAULT_FETCH_SIZE,
+            columns: Vec::new(),
             rows: VecDeque::new(),
         }
     }
 
-    pub fn read_metadata(&mut self) -> Result<(), DatabaseError> {
+    fn read_metadata(&mut self) -> Result<(), DatabaseError> {
         // FIXME read number and type of columns
+        match self.stream.read_command() {
+            Ok(command) => {
+                match command {
+                    DriverProtocolCommand::U8{ value } => {
+                       for _ in 1..value {
+                            self.read_column()?
+                        }
+                        Ok(())
+                    },
+                    _ => Err(DatabaseError::ProtocolViolation)
+                }
+            }
+            _ => Err(DatabaseError::ProtocolViolation)
+        }
+    }
+
+    fn read_column(&mut self) -> Result<(), DatabaseError> {
         todo!()
     }
 

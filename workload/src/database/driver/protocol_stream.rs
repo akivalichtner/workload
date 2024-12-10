@@ -13,22 +13,23 @@ impl DriverProtocolStream {
     }
 
     pub fn write_command(&mut self, command: &DriverProtocolCommand) -> Result<(), DatabaseError> {
-        self.write_u8(DriverProtocolStream::get_op_code(&command))?;
+        self.write_u8(&DriverProtocolStream::get_op_code(&command))?;
         match command {
             DriverProtocolCommand::Authenticate { user, password } => {
                 self.write_string(user)?;
                 self.write_string(password)?;
                 Ok(())
             }
-            DriverProtocolCommand::Execute { sql } => self.write_string(sql),
-            DriverProtocolCommand::GetUpdateCount => Ok(()),
             DriverProtocolCommand::Commit => Ok(()),
+            DriverProtocolCommand::Execute { sql } => self.write_string(sql),
             DriverProtocolCommand::Fail => Ok(()),
             DriverProtocolCommand::Fetch{ fetch_size } => self.write_u64(fetch_size),
+            DriverProtocolCommand::GetUpdateCount => Ok(()),
             DriverProtocolCommand::Pass => Ok(()),
-            DriverProtocolCommand::U64 { value } => self.write_u64(value),
             DriverProtocolCommand::Ready => Ok(()),
             DriverProtocolCommand::Row => Ok(()),
+            DriverProtocolCommand::U8 { value } => self.write_u8(value),
+            DriverProtocolCommand::U64 { value } => self.write_u64(value),
         }
     }
 
@@ -43,22 +44,20 @@ impl DriverProtocolStream {
                 password: _,
             } => 1,
             DriverProtocolCommand::Commit => 2,
-            DriverProtocolCommand::Execute { sql: _ } => 3,
-            DriverProtocolCommand::GetUpdateCount => 4,
+            DriverProtocolCommand::GetUpdateCount => 3,
+            DriverProtocolCommand::Execute { sql: _ } => 4,
             DriverProtocolCommand::Fail => 5,
             DriverProtocolCommand::Fetch { fetch_size: _ }=> 6,
             DriverProtocolCommand::Pass => 7,
-            DriverProtocolCommand::U64 { value: _ } => 8,
-            DriverProtocolCommand::Ready => 9,
-            DriverProtocolCommand::Row => 10,
+            DriverProtocolCommand::Ready => 8,
+            DriverProtocolCommand::Row => 9,
+            DriverProtocolCommand::U8 { value: _ } => 9,
+            DriverProtocolCommand::U64 { value: _ } => 10,
         }
     }
 
-    fn write_u8(&mut self, value: u8) -> Result<(), DatabaseError> {
-        match DriverProtocolStream::write(&mut self.tcp_stream, &[value]) {
-            Ok(_) => Ok(()),
-            Err(_) => Err(DatabaseError::NetworkError),
-        }
+    fn write_u8(&mut self, value: &u8) -> Result<(), DatabaseError> {
+        todo!()
     }
 
     fn write_u64(&mut self, _value: &u64) -> Result<(), DatabaseError> {
@@ -90,5 +89,6 @@ pub enum DriverProtocolCommand<'a> {
     Fetch { fetch_size: u64 },
     Pass,
     GetUpdateCount,
+    U8 { value: u8 },
     U64 { value: u64 },
 }
