@@ -32,7 +32,7 @@ impl DriverProtocolStream {
         }
     }
 
-    pub fn read(&self) -> Result<DriverProtocolCommand, DatabaseError> {
+    pub fn read_command(&self) -> Result<DriverProtocolCommand, DatabaseError> {
         todo!()
     }
 

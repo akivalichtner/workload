@@ -39,7 +39,7 @@ impl Connection {
     pub fn commit(&mut self) -> Result<(), DatabaseError> {
         if let Some(stream) = &mut self.driver_protocol_stream {
             match stream.write_command(&DriverProtocolCommand::Commit) {
-                Ok(()) => match stream.read() {
+                Ok(()) => match stream.read_command() {
                     Ok(DriverProtocolCommand::Pass) => Ok(()),
                     Ok(_) => Err(DatabaseError::ProtocolViolation),
                     Err(database_error) => Err(database_error),
@@ -54,7 +54,7 @@ impl Connection {
     fn authenticate(&mut self, user: &str, password: &str) -> Result<(), DatabaseError> {
         if let Some(stream) = &mut self.driver_protocol_stream {
             match stream.write_command(&DriverProtocolCommand::Authenticate { user, password }) {
-                Ok(()) => match stream.read() {
+                Ok(()) => match stream.read_command() {
                     Ok(DriverProtocolCommand::Pass) => Ok(()),
                     Ok(DriverProtocolCommand::Fail) => Err(DatabaseError::AuthenticationFailed),
                     Ok(_) => Err(DatabaseError::ProtocolViolation),

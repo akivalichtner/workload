@@ -39,7 +39,7 @@ impl<'a> ResultSet<'a> {
         }) {
             Ok(()) => {
                 loop {
-                    match self.stream.read() {
+                    match self.stream.read_command() {
                         Ok(DriverProtocolCommand::Row) => { self.read_row()?; },
                         Ok(DriverProtocolCommand::Ready) => break Ok(()),
                         Ok(_) => break Err(DatabaseError::ProtocolViolation),
