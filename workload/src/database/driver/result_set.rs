@@ -1,11 +1,6 @@
-use std::collections::VecDeque;
-
+use super::protocol_stream::{DriverProtocolCommand, DriverProtocolStream, Type};
 use crate::database::database_error::DatabaseError;
-
-use super::{
-    protocol_stream::{DriverProtocolCommand, DriverProtocolStream, Type},
-    row::Row,
-};
+use std::collections::VecDeque;
 
 pub const DEFAULT_FETCH_SIZE: u64 = 256;
 
@@ -17,6 +12,14 @@ struct Column {
 impl Column {
     fn new(name: String, column_type: Type) -> Column {
         Column { name, column_type }
+    }
+}
+
+struct Row {}
+
+impl Row {
+    pub fn get_string(&self, _column: &str) -> Result<String, DatabaseError> {
+        todo!()
     }
 }
 
