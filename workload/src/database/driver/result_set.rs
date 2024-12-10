@@ -3,14 +3,21 @@ use std::collections::VecDeque;
 use crate::database::database_error::DatabaseError;
 
 use super::{
-    protocol_stream::{DriverProtocolCommand, DriverProtocolStream},
+    protocol_stream::{DriverProtocolCommand, DriverProtocolStream, Type},
     row::Row,
 };
 
 pub const DEFAULT_FETCH_SIZE: u64 = 256;
 
 struct Column {
+    name: String,
+    column_type: Type,
+}
 
+impl Column {
+    fn new(name: String, column_type: Type) -> Column {
+        Column{ name, column_type}
+    }
 }
 
 pub struct ResultSet<'a> {
@@ -30,7 +37,7 @@ impl<'a> ResultSet<'a> {
         }
     }
 
-    fn read_metadata(&mut self) -> Result<(), DatabaseError> {
+    pub fn read_metadata(&mut self) -> Result<(), DatabaseError> {
         // FIXME read number and type of columns
         match self.stream.read_command() {
             Ok(command) => {
@@ -49,7 +56,15 @@ impl<'a> ResultSet<'a> {
     }
 
     fn read_column(&mut self) -> Result<(), DatabaseError> {
-        todo!()
+        let column_result = self.stream.read_command();
+        let type_result = self.stream.read_command();
+        match (column_result, type_result) {
+            (Ok(DriverProtocolCommand::String { value: name }), Ok(DriverProtocolCommand::Type { value: column_type })) => {
+                self.columns.push(Column::new(name, column_type));
+                Ok(())
+            },
+            _ => Err(DatabaseError::ProtocolViolation)
+        }
     }
 
     fn read_row(&mut self) -> Result<(), DatabaseError> {

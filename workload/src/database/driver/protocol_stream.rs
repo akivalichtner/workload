@@ -7,6 +7,10 @@ pub struct DriverProtocolStream {
     tcp_stream: TcpStream,
 }
 
+pub enum Type {
+    String
+}
+
 impl DriverProtocolStream {
     pub fn new(tcp_stream: TcpStream) -> DriverProtocolStream {
         DriverProtocolStream { tcp_stream }
@@ -28,6 +32,8 @@ impl DriverProtocolStream {
             DriverProtocolCommand::Pass => Ok(()),
             DriverProtocolCommand::Ready => Ok(()),
             DriverProtocolCommand::Row => Ok(()),
+            DriverProtocolCommand::String { value }=> self.write_string(value),
+            DriverProtocolCommand::Type { value } => self.write_type(value),
             DriverProtocolCommand::U8 { value } => self.write_u8(value),
             DriverProtocolCommand::U64 { value } => self.write_u64(value),
         }
@@ -51,9 +57,15 @@ impl DriverProtocolStream {
             DriverProtocolCommand::Pass => 7,
             DriverProtocolCommand::Ready => 8,
             DriverProtocolCommand::Row => 9,
-            DriverProtocolCommand::U8 { value: _ } => 9,
-            DriverProtocolCommand::U64 { value: _ } => 10,
+            DriverProtocolCommand::String { value: _ } => 10,
+            DriverProtocolCommand::Type { value: _ } => 11,
+            DriverProtocolCommand::U8 { value: _ } => 12,
+            DriverProtocolCommand::U64 { value: _ } => 13,
         }
+    }
+
+    fn write_type(&mut self, value: &Type) -> Result<(), DatabaseError> {
+        todo!()
     }
 
     fn write_u8(&mut self, value: &u8) -> Result<(), DatabaseError> {
@@ -83,12 +95,14 @@ pub enum DriverProtocolCommand<'a> {
     Authenticate { user: &'a str, password: &'a str },
     Commit,
     Execute { sql: &'a str },
-    Ready,
-    Row,
     Fail,
     Fetch { fetch_size: u64 },
-    Pass,
     GetUpdateCount,
+    Pass,
+    Ready,
+    Row,
+    String { value: String },
+    Type { value: Type },
     U8 { value: u8 },
     U64 { value: u64 },
 }
