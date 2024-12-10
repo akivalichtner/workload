@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["DEFAULT_FETCH_SIZE"],"struct":["Column","ResultSet","Row"]};
