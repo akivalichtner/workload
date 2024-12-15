@@ -19,8 +19,8 @@ impl<'a> Statement<'a> {
             .write_command(&DriverProtocolCommand::Execute { sql })
         {
             Ok(_) => match self.command_stream.read_command() {
-                Ok(DriverProtocolCommand::ResultSetMetadata { column_types }) => {
-                    Ok(ResultSet::new(&mut self.command_stream, column_types))
+                Ok(DriverProtocolCommand::ResultSetMetadata { column_names, column_types }) => {
+                    Ok(ResultSet::new(&mut self.command_stream, column_names, column_types))
                 },
                 Ok(_) => Err(DatabaseError::ProtocolViolation),
                 Err(err) => Err(err),

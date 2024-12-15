@@ -29,50 +29,21 @@ impl Row {
 pub struct ResultSet<'a> {
     stream: &'a mut CommandStream,
     fetch_size: u64,
+    column_names: Vec<String>,
     column_types: Vec<ColumnType>,
     columns: Vec<Column>,
     rows: VecDeque<Row>,
 }
 
 impl<'a> ResultSet<'a> {
-    pub fn new(stream: &mut CommandStream, column_types: Vec<ColumnType>) -> ResultSet {
+    pub fn new(stream: &mut CommandStream, column_names: Vec<String>, column_types: Vec<ColumnType>) -> ResultSet {
         ResultSet {
             stream,
             fetch_size: DEFAULT_FETCH_SIZE,
+            column_names,
             column_types,
             columns: Vec::new(),
             rows: VecDeque::new(),
-        }
-    }
-
-    pub fn read_metadata(&mut self) -> Result<(), DatabaseError> {
-        // FIXME read number and type of columns
-        match self.stream.read_command() {
-            Ok(command) => match command {
-                DriverProtocolCommand::U8 { value } => {
-                    for _ in 1..value {
-                        self.read_column_metadata()?
-                    }
-                    Ok(())
-                }
-                _ => Err(DatabaseError::ProtocolViolation),
-            },
-            _ => Err(DatabaseError::ProtocolViolation),
-        }
-    }
-
-    fn read_column_metadata(&mut self) -> Result<(), DatabaseError> {
-        let column_result = self.stream.read_command();
-        let type_result = self.stream.read_command();
-        match (column_result, type_result) {
-            (
-                Ok(DriverProtocolCommand::String { value: name }),
-                Ok(DriverProtocolCommand::Type { value: column_type }),
-            ) => {
-                self.columns.push(Column::new(name, column_type));
-                Ok(())
-            }
-            _ => Err(DatabaseError::ProtocolViolation),
         }
     }
 

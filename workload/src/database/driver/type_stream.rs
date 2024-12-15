@@ -11,6 +11,18 @@ pub struct TypeStream {
 
 impl TypeStream {
 
+    pub fn read_u8(&mut self) -> Result<u8, DatabaseError> {
+        todo!()
+    }
+
+    pub fn read_type(&mut self) -> Result<ColumnType, DatabaseError> {
+        todo!()
+    }
+
+    pub fn read_string(&mut self) -> Result<String, DatabaseError> {
+        todo!()
+    }
+
     pub fn new(tcp_stream: TcpStream) -> TypeStream {
         TypeStream{ tcp_stream }
     }
