@@ -6,6 +6,13 @@ pub enum ColumnType {
 }
 
 impl ColumnType {
-    // FIXME put conversion methods here
-    // e.g. get_string, get_date, etc.
+
+    pub(crate) fn get_string(&self, value: &[u8]) -> Option<String> {
+        match (self) {
+            ColumnType::String => todo!(),
+            ColumnType::Number => todo!(),
+            ColumnType::Boolean => todo!(),
+            ColumnType::Date => todo!(),
+        }
+    }
 }

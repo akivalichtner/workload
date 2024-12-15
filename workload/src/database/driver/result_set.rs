@@ -84,7 +84,12 @@ impl<'a> ResultSet<'a> {
                     match self.index_for_name.get(column) {
                         Some(index) => {
                             match row.get(*index) {
-                                Some(_) => todo!(),
+                                Some(value) => {
+                                    match self.column_types.get(*index) {
+                                        Some(column_type) => Ok(column_type.get_string(value)),
+                                        None => Err(DatabaseError::Defect)
+                                    }
+                                },
                                 None => Ok(None),
                             }
                         },
