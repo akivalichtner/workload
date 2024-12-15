@@ -1,39 +1,39 @@
-use std::io::Write;
 use std::net::TcpStream;
 
 use crate::database::database_error::DatabaseError;
 
 use super::column_type::ColumnType;
+use super::type_stream::TypeStream;
 
 pub struct CommandStream {
-    tcp_stream: TcpStream,
+    type_stream: TypeStream,
 }
 
 impl CommandStream {
     pub fn new(tcp_stream: TcpStream) -> CommandStream {
-        CommandStream { tcp_stream }
+        CommandStream { type_stream: TypeStream::new(tcp_stream) }
     }
 
     pub fn write_command(&mut self, command: &DriverProtocolCommand) -> Result<(), DatabaseError> {
-        self.write_u8(&CommandStream::get_op_code(&command))?;
+        self.type_stream.write_u8(&CommandStream::get_op_code(&command))?;
         match command {
             DriverProtocolCommand::Authenticate { user, password } => {
-                self.write_string(user)?;
-                self.write_string(password)?;
+                self.type_stream.write_string(user)?;
+                self.type_stream.write_string(password)?;
                 Ok(())
             }
             DriverProtocolCommand::Commit => Ok(()),
-            DriverProtocolCommand::Execute { sql } => self.write_string(sql),
+            DriverProtocolCommand::Execute { sql } => self.type_stream.write_string(sql),
             DriverProtocolCommand::Fail => Ok(()),
-            DriverProtocolCommand::Fetch { fetch_size } => self.write_u64(fetch_size),
+            DriverProtocolCommand::Fetch { fetch_size } => self.type_stream.write_u64(fetch_size),
             DriverProtocolCommand::GetUpdateCount => Ok(()),
             DriverProtocolCommand::Pass => Ok(()),
             DriverProtocolCommand::Ready => Ok(()),
             DriverProtocolCommand::Row => Ok(()),
-            DriverProtocolCommand::String { value } => self.write_string(value),
-            DriverProtocolCommand::Type { value } => self.write_type(value),
-            DriverProtocolCommand::U8 { value } => self.write_u8(value),
-            DriverProtocolCommand::U64 { value } => self.write_u64(value),
+            DriverProtocolCommand::String { value } => self.type_stream.write_string(value),
+            DriverProtocolCommand::Type { value } => self.type_stream.write_type(value),
+            DriverProtocolCommand::U8 { value } => self.type_stream.write_u8(value),
+            DriverProtocolCommand::U64 { value } => self.type_stream.write_u64(value),
         }
     }
 
@@ -59,31 +59,6 @@ impl CommandStream {
         }
     }
 
-    fn write_type(&mut self, value: &ColumnType) -> Result<(), DatabaseError> {
-        todo!()
-    }
-
-    fn write_u8(&mut self, value: &u8) -> Result<(), DatabaseError> {
-        todo!()
-    }
-
-    fn write_u64(&mut self, _value: &u64) -> Result<(), DatabaseError> {
-        todo!()
-    }
-
-    fn write_string(&self, _user: &str) -> Result<(), DatabaseError> {
-        todo!()
-    }
-
-    fn write(tcp_stream: &mut TcpStream, buf: &[u8]) -> Result<(), DatabaseError> {
-        match tcp_stream.write(buf) {
-            Ok(_) => Ok(()),
-            Err(_) => {
-                // FIXME wrap error source
-                Err(DatabaseError::NetworkError)
-            }
-        }
-    }
 }
 
 pub enum DriverProtocolCommand<'a> {
