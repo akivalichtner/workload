@@ -75,6 +75,29 @@ impl<'a> ResultSet<'a> {
         }
     }
 
+    fn get<T, P>(&self, column: &str, parse: P) -> Result<Option<T>, DatabaseError>
+    where
+        P: Fn(&ColumnType, &Vec<u8>) -> Result<Option<T>, DatabaseError>,
+    {
+        if self.rows.is_empty() {
+            Err(DatabaseError::IllegalState)
+        } else {
+            match self.rows.front() {
+                Some(row) => match self.index_for_name.get(column) {
+                    Some(index) => match row.get(*index) {
+                        Some(value) => match self.column_types.get(*index) {
+                            Some(column_type) => parse(column_type, value),
+                            None => Err(DatabaseError::Defect),
+                        },
+                        None => Ok(None),
+                    },
+                    None => Err(DatabaseError::NoSuchColumn),
+                },
+                None => Err(DatabaseError::Defect),
+            }
+        }
+    }
+
     pub fn get_string(&self, column: &str) -> Result<Option<String>, DatabaseError> {
         if self.rows.is_empty() {
             Err(DatabaseError::IllegalState)
