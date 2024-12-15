@@ -36,7 +36,6 @@ pub struct ResultSet<'a> {
 }
 
 impl<'a> ResultSet<'a> {
-    
     pub fn new(stream: &mut CommandStream, column_names: Vec<String>, column_types: Vec<ColumnType>) -> ResultSet {
         let mut index_for_name = HashMap::<String, usize>::new();
         let mut i = 0;
@@ -64,20 +63,18 @@ impl<'a> ResultSet<'a> {
     }
 
     fn fetch(&mut self) -> Result<(), DatabaseError> {
-        match self.stream.write_command(&DriverProtocolCommand::Fetch {
+        self.stream.write_command(&DriverProtocolCommand::Fetch {
             fetch_size: self.fetch_size,
-        }) {
-            Ok(()) => loop {
-                match self.stream.read_command() {
-                    Ok(DriverProtocolCommand::Row) => {
-                        self.read_row()?;
-                    }
-                    Ok(DriverProtocolCommand::Ready) => break Ok(()),
-                    Ok(_) => break Err(DatabaseError::ProtocolViolation),
-                    Err(database_error) => break Err(database_error),
+        })?;
+        loop {
+            match self.stream.read_command() {
+                Ok(DriverProtocolCommand::Row) => {
+                    self.read_row()?;
                 }
-            },
-            Err(database_error) => Err(database_error),
+                Ok(DriverProtocolCommand::Ready) => break Ok(()),
+                Ok(_) => break Err(DatabaseError::ProtocolViolation),
+                Err(err) => break Err(err),
+            }
         }
     }
 
