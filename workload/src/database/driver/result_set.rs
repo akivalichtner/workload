@@ -36,6 +36,7 @@ pub struct ResultSet<'a> {
 }
 
 impl<'a> ResultSet<'a> {
+    
     pub fn new(stream: &mut CommandStream, column_names: Vec<String>, column_types: Vec<ColumnType>) -> ResultSet {
         let mut index_for_name = HashMap::<String, usize>::new();
         let mut i = 0;
