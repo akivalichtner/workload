@@ -5,17 +5,17 @@ use crate::database::database_error::DatabaseError;
 
 use super::column_type::ColumnType;
 
-pub struct DriverProtocolStream {
+pub struct CommandStream {
     tcp_stream: TcpStream,
 }
 
-impl DriverProtocolStream {
-    pub fn new(tcp_stream: TcpStream) -> DriverProtocolStream {
-        DriverProtocolStream { tcp_stream }
+impl CommandStream {
+    pub fn new(tcp_stream: TcpStream) -> CommandStream {
+        CommandStream { tcp_stream }
     }
 
     pub fn write_command(&mut self, command: &DriverProtocolCommand) -> Result<(), DatabaseError> {
-        self.write_u8(&DriverProtocolStream::get_op_code(&command))?;
+        self.write_u8(&CommandStream::get_op_code(&command))?;
         match command {
             DriverProtocolCommand::Authenticate { user, password } => {
                 self.write_string(user)?;

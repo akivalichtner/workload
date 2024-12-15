@@ -1,6 +1,6 @@
 use super::{
     column_type::ColumnType,
-    protocol_stream::{DriverProtocolCommand, DriverProtocolStream},
+    command_stream::{DriverProtocolCommand, CommandStream},
 };
 use crate::database::database_error::DatabaseError;
 use std::collections::VecDeque;
@@ -27,14 +27,14 @@ impl Row {
 }
 
 pub struct ResultSet<'a> {
-    stream: &'a mut DriverProtocolStream,
+    stream: &'a mut CommandStream,
     fetch_size: u64,
     columns: Vec<Column>,
     rows: VecDeque<Row>,
 }
 
 impl<'a> ResultSet<'a> {
-    pub fn new(stream: &mut DriverProtocolStream) -> ResultSet {
+    pub fn new(stream: &mut CommandStream) -> ResultSet {
         ResultSet {
             stream,
             fetch_size: DEFAULT_FETCH_SIZE,

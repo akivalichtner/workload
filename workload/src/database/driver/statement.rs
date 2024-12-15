@@ -1,20 +1,20 @@
 use super::{
-    protocol_stream::{DriverProtocolCommand, DriverProtocolStream},
+    command_stream::{DriverProtocolCommand, CommandStream},
     result_set::ResultSet,
 };
 use crate::database::database_error::DatabaseError;
 
 pub struct Statement<'a> {
-    driver_protocol_stream: &'a mut Option<DriverProtocolStream>,
+    command_stream: &'a mut Option<CommandStream>,
 }
 
 impl<'a> Statement<'a> {
-    pub fn new(driver_protocol_stream: &mut Option<DriverProtocolStream>) -> Statement {
-        Statement { driver_protocol_stream }
+    pub fn new(command_stream: &mut Option<CommandStream>) -> Statement {
+        Statement { command_stream }
     }
 
     pub fn execute_query(&mut self, sql: &str) -> Result<ResultSet, DatabaseError> {
-        if let Some(ref mut stream) = &mut self.driver_protocol_stream {
+        if let Some(ref mut stream) = &mut self.command_stream {
             match stream.write_command(&DriverProtocolCommand::Execute { sql }) {
                 Ok(()) => match stream.read_command() {
                     Ok(DriverProtocolCommand::Ready) => {
@@ -33,7 +33,7 @@ impl<'a> Statement<'a> {
     }
 
     pub fn get_update_count(&mut self) -> Result<u64, DatabaseError> {
-        if let Some(ref mut stream) = &mut self.driver_protocol_stream {
+        if let Some(ref mut stream) = &mut self.command_stream {
             match stream.write_command(&DriverProtocolCommand::GetUpdateCount) {
                 Ok(()) => match stream.read_command() {
                     Ok(DriverProtocolCommand::U64 { value }) => Ok(value),
@@ -48,7 +48,7 @@ impl<'a> Statement<'a> {
     }
 
     pub fn execute_update(&mut self, sql: &str) -> Result<u64, DatabaseError> {
-        if let Some(ref mut stream) = &mut self.driver_protocol_stream {
+        if let Some(ref mut stream) = &mut self.command_stream {
             match stream.write_command(&DriverProtocolCommand::Execute { sql }) {
                 Ok(()) => match stream.read_command() {
                     Ok(DriverProtocolCommand::Ready) => self.get_update_count(),
