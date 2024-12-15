@@ -11,7 +11,7 @@ fn main() -> Result<(), DatabaseError> {
     println!("row count: {}", row_count);
     let mut result_set = statement.execute_query("SELECT c FROM t")?;
     while result_set.has_next() {
-        result_set.next();
+        result_set.next()?;
         result_set.get_string("c")?;
     }
     connection.commit()?;
