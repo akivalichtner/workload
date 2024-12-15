@@ -30,7 +30,7 @@ pub struct ResultSet<'a> {
 impl<'a> ResultSet<'a> {
     pub fn new(stream: &mut CommandStream, column_names: Vec<String>, column_types: Vec<ColumnType>) -> ResultSet {
         let mut index_for_name = HashMap::<String, usize>::new();
-        let mut i= 0;
+        let mut i = 0;
         column_names.into_iter().for_each(|column_name| {
             index_for_name.insert(column_name, i);
             i += 1
@@ -51,7 +51,7 @@ impl<'a> ResultSet<'a> {
         })?;
         loop {
             match self.stream.read_command() {
-                Ok(Command::Row{ values }) => self.rows.push_back(values),
+                Ok(Command::Row { values }) => self.rows.push_back(values),
                 Ok(Command::Ready) => break Ok(()),
                 Ok(_) => break Err(DatabaseError::ProtocolViolation),
                 Err(err) => break Err(err),
@@ -80,21 +80,15 @@ impl<'a> ResultSet<'a> {
             Err(DatabaseError::IllegalState)
         } else {
             match self.rows.front() {
-                Some(row) => {
-                    match self.index_for_name.get(column) {
-                        Some(index) => {
-                            match row.get(*index) {
-                                Some(value) => {
-                                    match self.column_types.get(*index) {
-                                        Some(column_type) => Ok(column_type.get_string(value)),
-                                        None => Err(DatabaseError::Defect)
-                                    }
-                                },
-                                None => Ok(None),
-                            }
+                Some(row) => match self.index_for_name.get(column) {
+                    Some(index) => match row.get(*index) {
+                        Some(value) => match self.column_types.get(*index) {
+                            Some(column_type) => column_type.get_string(value),
+                            None => Err(DatabaseError::Defect),
                         },
-                        None => Err(DatabaseError::NoSuchColumn),
-                    }
+                        None => Ok(None),
+                    },
+                    None => Err(DatabaseError::NoSuchColumn),
                 },
                 None => Err(DatabaseError::Defect),
             }
