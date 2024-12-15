@@ -37,9 +37,9 @@ impl<'a> Statement<'a> {
             Ok(()) => match self.command_stream.read_command() {
                 Ok(DriverProtocolCommand::U64 { value }) => Ok(value),
                 Ok(_) => Err(DatabaseError::ProtocolViolation),
-                Err(database_error) => Err(database_error),
+                Err(err) => Err(err),
             },
-            Err(database_error) => Err(database_error),
+            Err(err) => Err(err),
         }
     }
 
@@ -51,9 +51,9 @@ impl<'a> Statement<'a> {
             Ok(()) => match self.command_stream.read_command() {
                 Ok(DriverProtocolCommand::Ready) => self.get_update_count(),
                 Ok(_) => Err(DatabaseError::ProtocolViolation),
-                Err(database_error) => Err(database_error),
+                Err(err) => Err(err),
             },
-            Err(database_error) => Err(database_error),
+            Err(err) => Err(err),
         }
     }
 }
