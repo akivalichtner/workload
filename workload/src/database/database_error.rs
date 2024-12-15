@@ -8,6 +8,7 @@ pub enum DatabaseError {
     ConnectToListenerFailed,
     IllegalState,
     ProtocolViolation,
+    NoSuchColumn,
 }
 
 impl fmt::Display for DatabaseError {

@@ -18,27 +18,19 @@ impl Column {
     }
 }
 
-struct Row {}
-
-impl Row {
-    pub fn get_string(&self, _column: &str) -> Result<String, DatabaseError> {
-        todo!()
-    }
-}
-
 pub struct ResultSet<'a> {
     stream: &'a mut CommandStream,
     fetch_size: u64,
     index_for_name: HashMap<String, usize>,
     column_types: Vec<ColumnType>,
     columns: Vec<Column>,
-    rows: VecDeque<Row>,
+    rows: VecDeque<Vec<Vec<u8>>>,
 }
 
 impl<'a> ResultSet<'a> {
     pub fn new(stream: &mut CommandStream, column_names: Vec<String>, column_types: Vec<ColumnType>) -> ResultSet {
         let mut index_for_name = HashMap::<String, usize>::new();
-        let mut i = 0;
+        let mut i= 0;
         column_names.into_iter().for_each(|column_name| {
             index_for_name.insert(column_name, i);
             i += 1
@@ -53,24 +45,13 @@ impl<'a> ResultSet<'a> {
         }
     }
 
-    fn read_row(&mut self) -> Result<(), DatabaseError> {
-        for column in &self.columns {
-            match column.column_type {
-                _ => {}
-            }
-        }
-        Ok(())
-    }
-
     fn fetch(&mut self) -> Result<(), DatabaseError> {
         self.stream.write_command(&Command::Fetch {
             fetch_size: self.fetch_size,
         })?;
         loop {
             match self.stream.read_command() {
-                Ok(Command::Row) => {
-                    self.read_row()?;
-                }
+                Ok(Command::Row{ values }) => self.rows.push_back(values),
                 Ok(Command::Ready) => break Ok(()),
                 Ok(_) => break Err(DatabaseError::ProtocolViolation),
                 Err(err) => break Err(err),
@@ -94,12 +75,22 @@ impl<'a> ResultSet<'a> {
         }
     }
 
-    pub fn get_string(&self, column: &str) -> Result<String, DatabaseError> {
-        if (self.rows.is_empty()) {
+    pub fn get_string(&self, column: &str) -> Result<Option<String>, DatabaseError> {
+        if self.rows.is_empty() {
             Err(DatabaseError::IllegalState)
         } else {
             match self.rows.front() {
-                Some(row) => row.get_string(column),
+                Some(row) => {
+                    match self.index_for_name.get(column) {
+                        Some(index) => {
+                            match row.get(*index) {
+                                Some(_) => todo!(),
+                                None => Ok(None),
+                            }
+                        },
+                        None => Err(DatabaseError::NoSuchColumn),
+                    }
+                },
                 None => Err(DatabaseError::Defect),
             }
         }
