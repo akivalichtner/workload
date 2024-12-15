@@ -5,6 +5,7 @@ pub enum ColumnType {
     Number,
     Boolean,
     Date,
+    Null
 }
 
 impl ColumnType {
@@ -15,6 +16,7 @@ impl ColumnType {
             ColumnType::Number => todo!(),
             ColumnType::Boolean => todo!(),
             ColumnType::Date => todo!(),
+            ColumnType::Null => Ok(None),
         }
     }
 }
