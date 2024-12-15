@@ -29,6 +29,7 @@ impl CommandStream {
             DriverProtocolCommand::GetUpdateCount => Ok(()),
             DriverProtocolCommand::Pass => Ok(()),
             DriverProtocolCommand::Ready => Ok(()),
+            DriverProtocolCommand::ResultSetMetadata { column_types } => todo!(),
             DriverProtocolCommand::Row => Ok(()),
             DriverProtocolCommand::String { value } => self.type_stream.write_string(value),
             DriverProtocolCommand::Type { value } => self.type_stream.write_type(value),
@@ -51,11 +52,12 @@ impl CommandStream {
             DriverProtocolCommand::Fetch { fetch_size: _ } => 6,
             DriverProtocolCommand::Pass => 7,
             DriverProtocolCommand::Ready => 8,
-            DriverProtocolCommand::Row => 9,
-            DriverProtocolCommand::String { value: _ } => 10,
-            DriverProtocolCommand::Type { value: _ } => 11,
-            DriverProtocolCommand::U8 { value: _ } => 12,
-            DriverProtocolCommand::U64 { value: _ } => 13,
+            DriverProtocolCommand::ResultSetMetadata { column_types } => 9,
+            DriverProtocolCommand::Row => 10,
+            DriverProtocolCommand::String { value: _ } => 11,
+            DriverProtocolCommand::Type { value: _ } => 12,
+            DriverProtocolCommand::U8 { value: _ } => 13,
+            DriverProtocolCommand::U64 { value: _ } => 14,
         }
     }
 

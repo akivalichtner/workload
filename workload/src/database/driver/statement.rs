@@ -13,10 +13,6 @@ impl<'a> Statement<'a> {
         Statement { command_stream }
     }
 
-    pub fn execute_query2(&mut self, sql: &str) -> Result<ResultSet, DatabaseError> {
-        todo!()
-    }
-
     pub fn execute_query(&mut self, sql: &str) -> Result<ResultSet, DatabaseError> {
         match self
             .command_stream
@@ -27,9 +23,9 @@ impl<'a> Statement<'a> {
                     Ok(ResultSet::new(&mut self.command_stream, column_types))
                 },
                 Ok(_) => Err(DatabaseError::ProtocolViolation),
-                Err(_) => todo!(),
+                Err(err) => Err(err),
             },
-            Err(_) => todo!(),
+            Err(err) => Err(err),
         }
     }
 
