@@ -70,6 +70,7 @@ pub enum DriverProtocolCommand<'a> {
     GetUpdateCount,
     Pass,
     Ready,
+    ResultSetMetadata { column_types: Vec<ColumnType> },
     Row,
     String { value: String },
     Type { value: ColumnType },

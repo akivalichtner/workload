@@ -29,15 +29,17 @@ impl Row {
 pub struct ResultSet<'a> {
     stream: &'a mut CommandStream,
     fetch_size: u64,
+    column_types: Vec<ColumnType>,
     columns: Vec<Column>,
     rows: VecDeque<Row>,
 }
 
 impl<'a> ResultSet<'a> {
-    pub fn new(stream: &mut CommandStream) -> ResultSet {
+    pub fn new(stream: &mut CommandStream, column_types: Vec<ColumnType>) -> ResultSet {
         ResultSet {
             stream,
             fetch_size: DEFAULT_FETCH_SIZE,
+            column_types,
             columns: Vec::new(),
             rows: VecDeque::new(),
         }
