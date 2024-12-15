@@ -1,6 +1,6 @@
 use super::{
     column_type::ColumnType,
-    command_stream::{CommandStream, DriverProtocolCommand},
+    command_stream::{Command, CommandStream},
 };
 use crate::database::database_error::DatabaseError;
 use std::collections::{HashMap, VecDeque};
@@ -63,15 +63,15 @@ impl<'a> ResultSet<'a> {
     }
 
     fn fetch(&mut self) -> Result<(), DatabaseError> {
-        self.stream.write_command(&DriverProtocolCommand::Fetch {
+        self.stream.write_command(&Command::Fetch {
             fetch_size: self.fetch_size,
         })?;
         loop {
             match self.stream.read_command() {
-                Ok(DriverProtocolCommand::Row) => {
+                Ok(Command::Row) => {
                     self.read_row()?;
                 }
-                Ok(DriverProtocolCommand::Ready) => break Ok(()),
+                Ok(Command::Ready) => break Ok(()),
                 Ok(_) => break Err(DatabaseError::ProtocolViolation),
                 Err(err) => break Err(err),
             }

@@ -4,13 +4,11 @@ use crate::database::database_error::DatabaseError;
 
 use super::column_type::ColumnType;
 
-
 pub struct TypeStream {
     tcp_stream: TcpStream,
 }
 
 impl TypeStream {
-
     pub fn read_u8(&mut self) -> Result<u8, DatabaseError> {
         todo!()
     }
@@ -24,7 +22,7 @@ impl TypeStream {
     }
 
     pub fn new(tcp_stream: TcpStream) -> TypeStream {
-        TypeStream{ tcp_stream }
+        TypeStream { tcp_stream }
     }
 
     pub fn write_type(&mut self, value: &ColumnType) -> Result<(), DatabaseError> {
@@ -46,5 +44,4 @@ impl TypeStream {
     pub fn write(tcp_stream: &mut TcpStream, buf: &[u8]) -> Result<(), DatabaseError> {
         todo!()
     }
-
 }

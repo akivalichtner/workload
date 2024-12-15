@@ -1,5 +1,5 @@
 use super::{
-    command_stream::{DriverProtocolCommand, CommandStream},
+    command_stream::{Command, CommandStream},
     statement::Statement,
 };
 use crate::database::database_error::DatabaseError;
@@ -11,9 +11,7 @@ pub struct Connection {
 
 impl Connection {
     pub fn new() -> Connection {
-        Connection {
-            command_stream: None,
-        }
+        Connection { command_stream: None }
     }
 
     pub fn connect(&mut self, url: &str, port: u16, user: &str, password: &str) -> Result<(), DatabaseError> {
@@ -29,15 +27,15 @@ impl Connection {
     pub fn create_statement(&mut self) -> Result<Statement, DatabaseError> {
         match self.command_stream {
             Some(ref mut stream) => Ok(Statement::new(stream)),
-            None => Err(DatabaseError::IllegalState)
-        } 
+            None => Err(DatabaseError::IllegalState),
+        }
     }
 
     pub fn commit(&mut self) -> Result<(), DatabaseError> {
         if let Some(stream) = &mut self.command_stream {
-            match stream.write_command(&DriverProtocolCommand::Commit) {
+            match stream.write_command(&Command::Commit) {
                 Ok(()) => match stream.read_command() {
-                    Ok(DriverProtocolCommand::Pass) => Ok(()),
+                    Ok(Command::Pass) => Ok(()),
                     Ok(_) => Err(DatabaseError::ProtocolViolation),
                     Err(database_error) => Err(database_error),
                 },
@@ -50,10 +48,10 @@ impl Connection {
 
     fn authenticate(&mut self, user: &str, password: &str) -> Result<(), DatabaseError> {
         if let Some(stream) = &mut self.command_stream {
-            match stream.write_command(&DriverProtocolCommand::Authenticate { user, password }) {
+            match stream.write_command(&Command::Authenticate { user, password }) {
                 Ok(()) => match stream.read_command() {
-                    Ok(DriverProtocolCommand::Pass) => Ok(()),
-                    Ok(DriverProtocolCommand::Fail) => Err(DatabaseError::AuthenticationFailed),
+                    Ok(Command::Pass) => Ok(()),
+                    Ok(Command::Fail) => Err(DatabaseError::AuthenticationFailed),
                     Ok(_) => Err(DatabaseError::ProtocolViolation),
                     Err(database_error) => Err(database_error),
                 },
