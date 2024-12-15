@@ -26,8 +26,11 @@ impl Connection {
         }
     }
 
-    pub fn create_statement(&mut self) -> Statement {
-        Statement::new(&mut self.command_stream)
+    pub fn create_statement(&mut self) -> Result<Statement, DatabaseError> {
+        match self.command_stream {
+            Some(ref mut stream) => Ok(Statement::new(stream)),
+            None => Err(DatabaseError::IllegalState)
+        } 
     }
 
     pub fn commit(&mut self) -> Result<(), DatabaseError> {
