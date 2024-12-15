@@ -1,9 +1,9 @@
 use super::{
     column_type::ColumnType,
-    command_stream::{DriverProtocolCommand, CommandStream},
+    command_stream::{CommandStream, DriverProtocolCommand},
 };
 use crate::database::database_error::DatabaseError;
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 
 pub const DEFAULT_FETCH_SIZE: u64 = 256;
 
@@ -29,7 +29,7 @@ impl Row {
 pub struct ResultSet<'a> {
     stream: &'a mut CommandStream,
     fetch_size: u64,
-    column_names: Vec<String>,
+    index_for_name: HashMap<String, usize>,
     column_types: Vec<ColumnType>,
     columns: Vec<Column>,
     rows: VecDeque<Row>,
@@ -37,10 +37,16 @@ pub struct ResultSet<'a> {
 
 impl<'a> ResultSet<'a> {
     pub fn new(stream: &mut CommandStream, column_names: Vec<String>, column_types: Vec<ColumnType>) -> ResultSet {
+        let mut index_for_name = HashMap::<String, usize>::new();
+        let mut i = 0;
+        column_names.into_iter().for_each(|column_name| {
+            index_for_name.insert(column_name, i);
+            i += 1
+        });
         ResultSet {
             stream,
             fetch_size: DEFAULT_FETCH_SIZE,
-            column_names,
+            index_for_name,
             column_types,
             columns: Vec::new(),
             rows: VecDeque::new(),
